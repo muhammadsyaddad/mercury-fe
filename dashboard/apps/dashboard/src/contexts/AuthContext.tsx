@@ -1,13 +1,16 @@
-import React, {
+"use client";
+
+import {
   createContext,
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
-import { User, LoginCredentials, UserRole } from "../types";
+import type { User, LoginCredentials } from "../types";
+import { UserRole } from "../types";
 import { apiService } from "../services/api";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -47,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Verify token is still valid by fetching current user
           const currentUser = await apiService.getCurrentUser();
           setUser(currentUser);
-        } catch (error) {
+        } catch {
           // Token is invalid, clear storage
           localStorage.removeItem("token");
           localStorage.removeItem("user");
@@ -62,22 +65,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await apiService.login(credentials);
-      const { access_token } = response;
+    const response = await apiService.login(credentials);
+    const { access_token } = response;
 
-      // Store token
-      localStorage.setItem("token", access_token);
+    // Store token
+    localStorage.setItem("token", access_token);
 
-      // Get user info
-      const currentUser = await apiService.getCurrentUser();
-      setUser(currentUser);
-      localStorage.setItem("user", JSON.stringify(currentUser));
+    // Get user info
+    const currentUser = await apiService.getCurrentUser();
+    setUser(currentUser);
+    localStorage.setItem("user", JSON.stringify(currentUser));
 
-      toast.success("Logged in successfully");
-    } catch (error) {
-      throw error;
-    }
+    toast.success("Logged in successfully");
   };
 
   const logout = () => {
@@ -111,6 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return hierarchy[role] || 0;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hasMinimumRole = (requiredRole: UserRole): boolean => {
     if (!user) return false;
     return getRoleLevel(user.role) >= getRoleLevel(requiredRole);
@@ -134,13 +134,13 @@ export const withAuth = <P extends object>(
   Component: React.ComponentType<P>,
   requiredRoles?: UserRole[],
 ) => {
-  return (props: P) => {
+  const WrappedComponent = (props: P) => {
     const { user, loading, hasAnyRole } = useAuth();
 
     if (loading) {
       return (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary" />
         </div>
       );
     }
@@ -149,10 +149,10 @@ export const withAuth = <P extends object>(
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Authentication Required
             </h2>
-            <p className="text-gray-600">Please log in to access this page.</p>
+            <p className="text-muted-foreground">Please log in to access this page.</p>
           </div>
         </div>
       );
@@ -162,11 +162,11 @@ export const withAuth = <P extends object>(
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Access Denied
             </h2>
-            <p className="text-gray-600">
-              You don't have permission to access this page.
+            <p className="text-muted-foreground">
+              You don&apos;t have permission to access this page.
             </p>
           </div>
         </div>
@@ -175,4 +175,8 @@ export const withAuth = <P extends object>(
 
     return <Component {...props} />;
   };
+  
+  WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name || 'Component'})`;
+  
+  return WrappedComponent;
 };

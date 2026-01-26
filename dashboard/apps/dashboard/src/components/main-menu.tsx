@@ -1,7 +1,21 @@
 "use client";
 
 import { cn } from "@vision_dashboard/ui/cn";
-import { LayoutDashboard} from "lucide-react";
+import {
+  LayoutDashboard,
+  LineChart,
+  History,
+  Camera,
+  Users,
+  Settings,
+  Utensils,
+  DollarSign,
+  Target,
+  Package,
+  BarChart3,
+  CheckSquare,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,7 +31,68 @@ const items: NavItem[] = [
     path: "/",
     name: "Dashboard",
     icon: LayoutDashboard,
-  }
+  },
+  {
+    path: "/executive",
+    name: "Executive",
+    icon: LineChart,
+  },
+  {
+    path: "/history",
+    name: "History",
+    icon: History,
+  },
+  {
+    path: "/cameras",
+    name: "Cameras",
+    icon: Camera,
+  },
+  {
+    path: "/reviewed-detections",
+    name: "Reviewed",
+    icon: CheckSquare,
+  },
+  {
+    path: "/menu-management",
+    name: "Menu",
+    icon: Utensils,
+  },
+  {
+    path: "/pricing",
+    name: "Pricing",
+    icon: DollarSign,
+  },
+  {
+    path: "/waste-targets",
+    name: "Targets",
+    icon: Target,
+  },
+  {
+    path: "/trays",
+    name: "Trays",
+    icon: Package,
+  },
+  {
+    path: "/restaurant-metrics",
+    name: "Metrics",
+    icon: BarChart3,
+  },
+  {
+    path: "/users",
+    name: "Users",
+    icon: Users,
+    adminOnly: true,
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    icon: Settings,
+  },
+  {
+    path: "/account",
+    name: "Account",
+    icon: User,
+  },
 ];
 
 interface ItemProps {
