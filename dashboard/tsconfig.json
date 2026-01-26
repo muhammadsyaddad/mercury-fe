@@ -1,0 +1,3 @@
+{
+  "extends": "@vision_dashboard/tsconfig/base.json"
+}
