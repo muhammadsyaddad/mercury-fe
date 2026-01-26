@@ -10,11 +10,33 @@ lerna-debug.log*
 # Dependencies
 node_modules
 .pnpm-store
+.pnp
+.pnp.js
+
 
 # Build
 dist
 dist-ssr
 *.local
+
+#next
+.next/
+out/
+next-env.d.ts
+
+# expo
+.expo/
+dist/
+
+# production
+build
+
+
+# typescript
+*.tsbuildinfo
+
+# turbo
+.turbo
 
 # Editor directories and files
 .vscode/*
@@ -34,3 +56,6 @@ dist-ssr
 
 # Testing
 coverage
+
+#opencode
+.opencode
