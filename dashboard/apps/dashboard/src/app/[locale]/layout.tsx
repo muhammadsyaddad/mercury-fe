@@ -4,56 +4,13 @@ import "@vision_dashboard/ui/globals.css";
 import { Toaster } from "@vision_dashboard/ui/toaster";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
-import type { Metadata } from "next";
 import { Lora } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactElement } from "react";
 import { Providers } from "./providers";
+import { getSession } from "@/lib/auth";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://app.midday.ai"),
-  title: "Midday | Run your business smarter",
-  description:
-    "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
-  twitter: {
-    title: "Midday | Run your business smarter",
-    description:
-      "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
-    images: [
-      {
-        url: "https://cdn.midday.ai/opengraph-image.jpg",
-        width: 800,
-        height: 600,
-      },
-      {
-        url: "https://cdn.midday.ai/opengraph-image.jpg",
-        width: 1800,
-        height: 1600,
-      },
-    ],
-  },
-  openGraph: {
-    title: "Midday | Run your business smarter",
-    description:
-      "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
-    url: "https://app.midday.ai",
-    siteName: "Midday",
-    images: [
-      {
-        url: "https://cdn.midday.ai/opengraph-image.jpg",
-        width: 800,
-        height: 600,
-      },
-      {
-        url: "https://cdn.midday.ai/opengraph-image.jpg",
-        width: 1800,
-        height: 1600,
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-};
+
 
 const lora = Lora({
   weight: "400",
@@ -81,6 +38,7 @@ export default async function Layout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const session = await getSession();
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -91,7 +49,7 @@ export default async function Layout({
         )}
       >
         <NuqsAdapter>
-          <Providers locale={locale}>{children}</Providers>
+          <Providers locale={locale} initialUser={session}>{children}</Providers>
           <Toaster />
         </NuqsAdapter>
       </body>

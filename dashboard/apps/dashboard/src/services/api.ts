@@ -1,7 +1,18 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { toast } from 'sonner';
 
-// Get API base URL - use current origin if NEXT_PUBLIC_API_URL is empty
+/**
+ * Resolve base URL for API calls.
+ *
+ * Priority:
+ * 1. NEXT_PUBLIC_API_URL environment variable (useful for staging/production).
+ * 2. If not set and we're in the browser, use window.location.origin (useful for local dev and relative deployments).
+ * 3. Fallback to empty string to avoid invalid URL building on the server.
+ *
+ * Note: On the server (during SSR), `window` is undefined, so the function returns an empty string.
+ *       The caller (ApiService) appends `/api/v1` to this base, so ensure you set NEXT_PUBLIC_API_URL
+ *       when running server-side or in environments where origin cannot be derived from `window`.
+ */
 const getApiBaseUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl) {
@@ -14,12 +25,18 @@ const getApiBaseUrl = () => {
   return '';
 };
 
+/**
+ * Final resolved API base URL used for building absolute asset URLs.
+ * Example: `${API_BASE_URL}/static/...`
+ */
 const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
   private client: AxiosInstance;
 
   constructor() {
+    // Create an axios instance scoped to the API's base path.
+    // All requests made via `this.client` will use this base URL.
     this.client = axios.create({
       baseURL: `${API_BASE_URL}/api/v1`,
       headers: {
@@ -27,12 +44,17 @@ class ApiService {
       },
     });
 
-    // Request interceptor to add auth token
+    // Request interceptor:
+    // - Runs for every request before it is sent.
+    // - We attach the Authorization header when a token is available in localStorage.
+    // - Note: localStorage is only available on the client; guard with `typeof window !== 'undefined'`.
+    // - If you prefer cookies or more secure storage (HttpOnly cookies), change this logic accordingly.
     this.client.interceptors.request.use(
       (config) => {
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('token');
           if (token) {
+            // Attach Bearer token for protected endpoints
             config.headers.Authorization = `Bearer ${token}`;
           }
         }
@@ -41,7 +63,11 @@ class ApiService {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor for error handling
+    // Response interceptor:
+    // - Centralized error handling for all responses.
+    // - If we get a 401 (unauthorized), assume session is invalid: clear credentials and redirect to /login.
+    // - Also show a user-friendly error message using a toast.
+    // - Finally, rethrow the error so callers can handle it if needed.
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -49,24 +75,42 @@ class ApiService {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            // Force navigation to login to get a fresh session.
             window.location.href = '/login';
           }
         }
-        
+
+        // Prefer detail from server payload; fallback to the error message.
         const message = error.response?.data?.detail || error.message;
         toast.error(message);
-        
+
         return Promise.reject(error);
       }
     );
   }
 
   // Auth endpoints
+  /**
+   * Login with username/password.
+   *
+   * Note: the backend often expects a form-encoded body. There are two common ways:
+   *  - application/x-www-form-urlencoded: use URLSearchParams or a query string.
+   *  - multipart/form-data: use FormData (browsers will set correct boundary automatically).
+   *
+   * This code uses FormData and sets 'application/x-www-form-urlencoded' header — which is an uncommon
+   * combination. If you encounter server errors, prefer using URLSearchParams:
+   *   const params = new URLSearchParams();
+   *   params.append('username', credentials.username);
+   *   params.append('password', credentials.password);
+   *   this.client.post('/auth/login', params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+   *
+   * Keep an eye on the backend's expected content type.
+   */
   async login(credentials: { username: string; password: string }) {
     const formData = new FormData();
     formData.append('username', credentials.username);
     formData.append('password', credentials.password);
-    
+
     const response = await this.client.post('/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -145,6 +189,7 @@ class ApiService {
     category?: string;
     review_status?: string;
     start_date?: string;
+    meal_period?: string;
     end_date?: string;
     include_no_waste?: boolean;
   }) {
@@ -240,6 +285,15 @@ class ApiService {
     return response.data;
   }
 
+  /**
+   * Capture a screenshot from the camera and return a browser Blob URL.
+   *
+   * The request expects binary data, so we set responseType: 'blob'.
+   * We then create an object URL that can be used as an <img src> or downloaded.
+   *
+   * Important: object URLs are not automatically released. If you create many,
+   * call URL.revokeObjectURL(url) when the image is no longer needed to free memory.
+   */
   async captureScreenshot(cameraId: number) {
     const response = await this.client.get(`/cameras/${cameraId}/screenshot`, {
       responseType: 'blob',
@@ -247,10 +301,14 @@ class ApiService {
     return URL.createObjectURL(response.data);
   }
 
+  /**
+   * Upload an ROI image for a camera.
+   * This uses multipart/form-data which allows sending binary files (the browser sets the correct boundary).
+   */
   async saveROIImage(cameraId: number, imageBlob: Blob) {
     const formData = new FormData();
     formData.append('roi_image', imageBlob, `camera_${cameraId}_roi.jpg`);
-    
+
     const response = await this.client.post(`/cameras/${cameraId}/roi-image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -259,11 +317,16 @@ class ApiService {
     return response.data;
   }
 
-  // Utility method for file uploads
+  /**
+   * Generic file uploader.
+   * - `endpoint` should be a path like '/uploads' (it will be appended to baseURL).
+   * - `config` can include additional axios config (e.g., onUploadProgress).
+   * - We merge provided headers so callers can override behavior.
+   */
   async uploadFile(file: File, endpoint: string, config?: AxiosRequestConfig) {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     const response = await this.client.post(endpoint, formData, {
       ...config,
       headers: {
@@ -271,7 +334,7 @@ class ApiService {
         ...config?.headers,
       },
     });
-    
+
     return response.data;
   }
 
@@ -320,12 +383,21 @@ class ApiService {
     return response.data;
   }
 
-  // Get image URL
+  /**
+   * Build an absolute URL to a static image served by the API.
+   * Use this for rendering <img src={apiService.getImageUrl(path)} />
+   * Note: API_BASE_URL may be empty during SSR if not configured, so ensure
+   * NEXT_PUBLIC_API_URL is set when server-side rendering absolute URLs.
+   */
   getImageUrl(imagePath: string): string {
     return `${API_BASE_URL}/static/${imagePath}`;
   }
 
-  // Get detection image URL (with GCS support)
+  /**
+   * Get a signed URL for a detection image (stored in GCS or similar).
+   * The server typically returns a time-limited URL (response.data.url) which the client
+   * can use directly in image tags or downloads.
+   */
   async getDetectionImageUrl(detectionId: number, imageType: string): Promise<string> {
     const response = await this.client.get(`/images/detection/${detectionId}/image/${imageType}/url`);
     return response.data.url;
@@ -364,6 +436,11 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+/**
+ * `settingsApi` groups settings-related methods with a narrower interface.
+ * This makes it easier to mock or pass only the settings functions to
+ * React Query hooks and other consumers that don't need full ApiService.
+ */
 export const settingsApi = {
   getCurrencySettings: () => apiService.getCurrencySettings(),
   updateCurrencySettings: (data: { default_currency: string }) => apiService.updateCurrencySettings(data),

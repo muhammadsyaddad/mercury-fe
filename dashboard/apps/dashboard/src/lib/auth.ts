@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 
-export type UserRole = "admin" | "user";
+export type UserRole = "admin" | "worker";
 
 export interface User {
   id: string;

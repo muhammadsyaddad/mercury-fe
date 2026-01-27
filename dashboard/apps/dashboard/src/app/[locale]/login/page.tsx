@@ -2,6 +2,7 @@
 
 import { login } from "@/lib/auth";
 import { Button } from "@vision_dashboard/ui/button";
+import { Icons } from "@vision_dashboard/ui/icons";
 import { Input } from "@vision_dashboard/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";

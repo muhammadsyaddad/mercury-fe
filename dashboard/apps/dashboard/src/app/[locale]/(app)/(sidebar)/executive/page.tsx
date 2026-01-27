@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@vision_dashboard/ui/card";
 import { Button } from "@vision_dashboard/ui/button";
 import { Badge } from "@vision_dashboard/ui/badge";
-import { Progress } from "@vision_dashboard/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
 import { Skeleton } from "@vision_dashboard/ui/skeleton";
 import { cn } from "@vision_dashboard/ui/cn";
@@ -174,7 +173,7 @@ export default function ExecutiveDashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>

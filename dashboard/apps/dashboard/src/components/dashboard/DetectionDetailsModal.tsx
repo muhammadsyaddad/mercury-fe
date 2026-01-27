@@ -53,12 +53,8 @@ export function DetectionDetailsModal({
   onReviewUpdate,
 }: DetectionDetailsModalProps) {
   const { hasAnyRole } = useAuth();
-  const canViewOCRResults = hasAnyRole([UserRole.ADMIN, UserRole.REVIEWER]);
-  const canReview = hasAnyRole([
-    UserRole.ADMIN,
-    UserRole.MANAGER,
-    UserRole.REVIEWER,
-  ]);
+  const canViewOCRResults = hasAnyRole([UserRole.ADMIN]);
+  const canReview = hasAnyRole([UserRole.ADMIN, UserRole.WORKER]);
 
   // Review form state
   const [showReviewForm, setShowReviewForm] = useState(false);

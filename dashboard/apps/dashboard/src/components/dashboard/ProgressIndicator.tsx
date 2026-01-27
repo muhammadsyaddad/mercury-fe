@@ -7,13 +7,14 @@ import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 
 interface ProgressIndicatorProps {
-  title: string;
+  title?: string;
   current: number;
   target: number;
   unit?: string;
   format?: "number" | "currency" | "percentage";
   status?: "on_track" | "warning" | "exceeded";
   showDetails?: boolean;
+  showPercentage?: boolean;
   className?: string;
 }
 
@@ -25,9 +26,10 @@ export function ProgressIndicator({
   format = "number",
   status,
   showDetails = true,
+  showPercentage = false,
   className,
 }: ProgressIndicatorProps) {
-  const percentage = Math.min((current / target) * 100, 100);
+  const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
 
   // Determine status if not provided
   const calculatedStatus =
@@ -76,6 +78,22 @@ export function ProgressIndicator({
   const config = statusConfig[calculatedStatus];
   const Icon = config.icon;
 
+  // Simple inline progress bar without card wrapper when showPercentage is true and no title
+  if (showPercentage && !title) {
+    return (
+      <div className={cn("relative", className)}>
+        <Progress
+          value={Math.min(percentage, 100)}
+          className={cn("h-2", {
+            "[&>div]:bg-green-500": calculatedStatus === "on_track",
+            "[&>div]:bg-yellow-500": calculatedStatus === "warning",
+            "[&>div]:bg-red-500": calculatedStatus === "exceeded",
+          })}
+        />
+      </div>
+    );
+  }
+
   return (
     <Card
       className={cn(
@@ -86,9 +104,11 @@ export function ProgressIndicator({
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">
-              {title}
-            </h3>
+            {title && (
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                {title}
+              </h3>
+            )}
             {showDetails && (
               <div className="text-sm text-muted-foreground">
                 {formatValue(current)} of {formatValue(target)} {unit}

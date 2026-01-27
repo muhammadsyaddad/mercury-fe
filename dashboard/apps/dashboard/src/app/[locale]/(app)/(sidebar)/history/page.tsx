@@ -34,10 +34,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
-import { useAuth } from "@/contexts/AuthContext";
 import { getDisplayValues } from "@/utils/detectionDisplay";
 import { DetectionImage, DetectionDetailsModal } from "@/components/dashboard";
-import type { Detection, Camera, FoodCategory, UserRole, MealPeriod } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/types";
+import type { Detection, Camera, FoodCategory, MealPeriod } from "@/types";
 
 interface PaginatedDetectionResponse {
   items: Detection[];
@@ -95,8 +96,7 @@ const formatWeight = (weight?: number) => {
 };
 
 export default function HistoryPage() {
-  const { user, hasAnyRole } = useAuth();
-  const queryClient = useQueryClient();
+  const { hasAnyRole } = useAuth();
 
   const [filters, setFilters] = useState<Filters>({
     camera_id: "",
@@ -114,8 +114,8 @@ export default function HistoryPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [detectionToDelete, setDetectionToDelete] = useState<Detection | null>(null);
 
-  const canDeleteDetections = hasAnyRole(["manager", "admin"]);
-  const canExportData = hasAnyRole(["reviewer", "manager", "admin"]);
+  const canDeleteDetections = hasAnyRole([UserRole.ADMIN]);
+  const canExportData = true; // All logged-in users can export
 
   // Fetch cameras
   const { data: cameras = [] } = useQuery({
@@ -214,7 +214,7 @@ export default function HistoryPage() {
   const convertToCSV = (data: Record<string, unknown>[]) => {
     if (data.length === 0) return "";
 
-    const headers = Object.keys(data[0]).join(",");
+    const headers = Object.keys(data[0] || {}).join(",");
     const rows = data.map((item) =>
       Object.values(item)
         .map((value) => (typeof value === "string" ? `"${value}"` : value))
@@ -444,7 +444,7 @@ export default function HistoryPage() {
           ) : (
             <>
               <div className="space-y-3">
-                {paginatedData.items.map((detection) => {
+                {paginatedData.items.map((detection: Detection) => {
                   const displayValues = getDisplayValues(detection);
                   const mealInfo = getMealPeriodInfo(detection.meal_period);
 
@@ -458,7 +458,8 @@ export default function HistoryPage() {
                         {/* Detection Image Thumbnail */}
                         <div className="w-14 h-14 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                           <DetectionImage
-                            imagePath={detection.image_path}
+                            detectionId={detection.id}
+                            imageType="food_1"
                             alt="Detection"
                             className="w-full h-full object-cover"
                           />
@@ -507,7 +508,6 @@ export default function HistoryPage() {
                           </div>
                         )}
                         {/* Delete Button */}
-                        {canDeleteDetections && (
                           <Button
                             variant="destructive"
                             size="icon"
@@ -518,7 +518,6 @@ export default function HistoryPage() {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                        )}
                       </div>
                     </div>
                   );
@@ -604,7 +603,8 @@ export default function HistoryPage() {
             <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
               <div className="w-12 h-12 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                 <DetectionImage
-                  imagePath={detectionToDelete.image_path}
+                  detectionId={detectionToDelete.id}
+                  imageType="food_1"
                   alt="Detection"
                   className="w-full h-full object-cover"
                 />

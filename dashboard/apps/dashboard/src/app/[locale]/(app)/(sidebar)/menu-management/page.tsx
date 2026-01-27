@@ -167,14 +167,15 @@ export default function MenuManagementPage() {
     );
   }
 
-  const menuItems = menuData?.items || [];
+  const menuItems: MenuItem[] = menuData?.items ?? [];
 
   // Group items by category
-  const itemsByCategory = menuItems.reduce((acc: Record<string, MenuItem[]>, item: MenuItem) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
+  const itemsByCategory = menuItems.reduce<Record<string, MenuItem[]>>((acc, item: MenuItem) => {
+    const category = item.category;
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    acc[item.category].push(item);
+    acc[category]?.push(item);
     return acc;
   }, {});
 

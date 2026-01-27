@@ -12,7 +12,8 @@ export const formatCategoryName = (category: string): string => {
   }
   let cleanCategory = category;
   if (cleanCategory.includes('FoodCategory.')) {
-    cleanCategory = cleanCategory.split('.')[1].toLowerCase();
+    const parts = cleanCategory.split('.');
+    cleanCategory = (parts[1] ?? '').toLowerCase();
   }
   return cleanCategory.charAt(0).toUpperCase() + cleanCategory.slice(1);
 };
@@ -23,7 +24,7 @@ export const formatCategoryName = (category: string): string => {
 export const getNormalizedCategory = (category: string): FoodCategory => {
   if (category.includes('FoodCategory.')) {
     const enumKey = category.split('.')[1];
-    return FoodCategory[enumKey as keyof typeof FoodCategory];
+    return FoodCategory[enumKey as keyof typeof FoodCategory] ?? FoodCategory.OTHERS;
   }
   return category as FoodCategory;
 };

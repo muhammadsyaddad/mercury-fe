@@ -24,62 +24,147 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
+  const isServer = typeof window === "undefined";
+
+  // If rendering on the server side, return a safe stub instead of throwing.
+  // Add debug logging to help trace where SSR calls to useAuth originate.
+  if (isServer) {
+    // Minimal SSR-safe logs (won't expose sensitive data)
+    console.debug?.("[AuthContext] useAuth called during SSR - returning server stub");
+    console.trace?.("[AuthContext] SSR trace: useAuth called");
+
+    return {
+      user: null,
+      loading: true,
+      login: async () => {
+        throw new Error("Auth is not available during server-side rendering");
+      },
+      logout: () => {},
+      hasRole: () => false,
+      hasAnyRole: () => false,
+      isLoggedIn: false,
+    };
+  }
+
+  console.debug?.("[AuthContext] useAuth called on client");
+
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    // If, on the client, the provider is missing, return a fallback stub
+    // and warn so it doesn't hard crash the app. Include a stack trace to help debug.
+    console.warn("[AuthContext] useAuth must be used within an AuthProvider; returning fallback stub.");
+    console.trace?.("[AuthContext] Client trace: AuthProvider missing - useAuth called");
+
+    return {
+      user: null,
+      loading: false,
+      login: async () => {
+        throw new Error("AuthProvider is missing");
+      },
+      logout: () => {},
+      hasRole: () => false,
+      hasAnyRole: () => false,
+      isLoggedIn: false,
+    };
   }
+
   return context;
 };
 
 interface AuthProviderProps {
   children: ReactNode;
+  initialUser?: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  } | null;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUser }) => {
+  // Convert server session user to client User type
+  const convertSessionUser = (sessionUser: NonNullable<AuthProviderProps['initialUser']>): User => ({
+    id: Number(sessionUser.id) || 0,
+    username: sessionUser.name,
+    email: sessionUser.email,
+    full_name: sessionUser.name,
+    role: sessionUser.role.toUpperCase() as UserRole,
+    is_active: true,
+    created_at: new Date().toISOString(),
+  });
+
+  const [user, setUser] = useState<User | null>(
+    initialUser ? convertSessionUser(initialUser) : null
+  );
+  const [loading, setLoading] = useState(!initialUser); // Don't show loading if we have initialUser
 
   useEffect(() => {
+    // If we already have an initialUser from the server session, skip client-side initialization
+    if (initialUser) {
+      console.debug?.("[AuthContext] Using initialUser from server session");
+      setLoading(false);
+      return;
+    }
+
     const initializeAuth = async () => {
+      const start = new Date().toISOString();
+      console.debug?.(`[AuthContext] initializeAuth start: ${start}`);
       const token = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
+      console.debug?.(`[AuthContext] token present: ${!!token}, savedUser present: ${!!savedUser}`);
 
       if (token && savedUser) {
         try {
+          console.debug?.("[AuthContext] Verifying token via apiService.getCurrentUser");
           // Verify token is still valid by fetching current user
           const currentUser = await apiService.getCurrentUser();
+          console.debug?.("[AuthContext] Token valid - setting user", { id: currentUser?.id });
           setUser(currentUser);
-        } catch {
+        } catch (error) {
+          console.warn?.("[AuthContext] Token verification failed. Clearing local storage.", error);
           // Token is invalid, clear storage
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setUser(null);
         }
+      } else {
+        console.debug?.("[AuthContext] No token/savedUser found during initialization");
       }
 
       setLoading(false);
+      console.debug?.("[AuthContext] initializeAuth complete");
     };
 
     initializeAuth();
-  }, []);
+  }, [initialUser]);
 
   const login = async (credentials: LoginCredentials) => {
-    const response = await apiService.login(credentials);
-    const { access_token } = response;
+    // Avoid logging sensitive fields; only emit non-sensitive identifier for trace.
+    console.debug?.("[AuthContext] login called for:", credentials?.username ?? "(no-username)");
+    try {
+      const response = await apiService.login(credentials);
+      const { access_token } = response;
 
-    // Store token
-    localStorage.setItem("token", access_token);
+      console.debug?.("[AuthContext] login success - storing token");
+      // Store token
+      localStorage.setItem("token", access_token);
 
-    // Get user info
-    const currentUser = await apiService.getCurrentUser();
-    setUser(currentUser);
-    localStorage.setItem("user", JSON.stringify(currentUser));
+      // Get user info
+      const currentUser = await apiService.getCurrentUser();
+      console.debug?.("[AuthContext] fetched current user", { id: currentUser?.id });
+      setUser(currentUser);
+      localStorage.setItem("user", JSON.stringify(currentUser));
 
-    toast.success("Logged in successfully");
+      toast.success("Logged in successfully");
+    } catch (error) {
+      console.error?.("[AuthContext] login failed", error);
+      throw error;
+    }
   };
 
   const logout = () => {
+    console.debug?.("[AuthContext] logout called - clearing token & user");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
@@ -98,22 +183,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isLoggedIn = !!user;
 
-  // Role hierarchy for permission checking
-  const getRoleLevel = (role: UserRole): number => {
-    const hierarchy = {
-      [UserRole.USER]: 0,
-      [UserRole.STAFF]: 1,
-      [UserRole.REVIEWER]: 2,
-      [UserRole.MANAGER]: 3,
-      [UserRole.ADMIN]: 4,
-    };
-    return hierarchy[role] || 0;
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const hasMinimumRole = (requiredRole: UserRole): boolean => {
-    if (!user) return false;
-    return getRoleLevel(user.role) >= getRoleLevel(requiredRole);
+  // Simple role check - Admin has higher level than Worker
+  const isAdmin = (): boolean => {
+    return user?.role === UserRole.ADMIN;
   };
 
   const value: AuthContextType = {
@@ -175,8 +247,8 @@ export const withAuth = <P extends object>(
 
     return <Component {...props} />;
   };
-  
+
   WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name || 'Component'})`;
-  
+
   return WrappedComponent;
 };

@@ -85,10 +85,8 @@ export default function AccountPage() {
     switch (role) {
       case UserRole.ADMIN:
         return 'destructive';
-      case UserRole.MANAGER:
+      case UserRole.WORKER:
         return 'default';
-      case UserRole.REVIEWER:
-        return 'secondary';
       default:
         return 'outline';
     }
@@ -97,10 +95,7 @@ export default function AccountPage() {
   const getRoleIcon = (role: UserRole) => {
     const icons = {
       [UserRole.ADMIN]: '👑',
-      [UserRole.MANAGER]: '👔',
-      [UserRole.REVIEWER]: '🔍',
-      [UserRole.STAFF]: '👨‍💼',
-      [UserRole.USER]: '👤'
+      [UserRole.WORKER]: '👤'
     };
     return icons[role] || '👤';
   };
@@ -108,10 +103,7 @@ export default function AccountPage() {
   const getRoleDescription = (role: UserRole) => {
     const descriptions = {
       [UserRole.ADMIN]: 'Full system access and user management',
-      [UserRole.MANAGER]: 'Camera management and detection oversight',
-      [UserRole.REVIEWER]: 'Detection review and analytics access',
-      [UserRole.STAFF]: 'Basic camera operations and monitoring',
-      [UserRole.USER]: 'View dashboard and detection results'
+      [UserRole.WORKER]: 'View dashboard, review detections, and monitor cameras'
     };
     return descriptions[role] || 'Basic system access';
   };
@@ -192,12 +184,14 @@ export default function AccountPage() {
             </div>
             <div>
               <Label className="text-muted-foreground">Account Status</Label>
-              <Badge
-                variant={user.is_active ? 'default' : 'destructive'}
-                className="mt-1"
-              >
-                {user.is_active ? 'Active' : 'Inactive'}
-              </Badge>
+                <div className="mt-1 flex items-center gap-2">
+                  <Badge
+                    variant={user.is_active ? 'default' : 'destructive'}
+                    className="mt-1"
+                  >
+                    {user.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
             </div>
           </div>
 

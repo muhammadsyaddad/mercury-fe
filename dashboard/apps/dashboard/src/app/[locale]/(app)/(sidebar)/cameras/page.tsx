@@ -38,6 +38,7 @@ import { apiService } from "@/services/api";
 import { trayService } from "@/services/trayService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Camera, Tray } from "@/types";
+import { UserRole } from "@/types";
 
 interface CameraFormData {
   name: string;
@@ -83,7 +84,7 @@ export default function CamerasPage() {
   const [editingCamera, setEditingCamera] = useState<Camera | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<Camera | null>(null);
 
-  const canManageCameras = hasAnyRole(["manager", "admin"]);
+  const canManageCameras = hasAnyRole([UserRole.ADMIN]);
 
   const {
     register,

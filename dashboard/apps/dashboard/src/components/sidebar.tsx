@@ -1,6 +1,7 @@
 "use client";
 
-import { type User as UserType, getSession, logout } from "@/lib/auth";
+import { type User as UserType } from "@/lib/auth";
+import { apiService } from "@/services/api";
 import { Avatar, AvatarFallback } from "@vision_dashboard/ui/avatar";
 import { cn } from "@vision_dashboard/ui/cn";
 import { Icons } from "@vision_dashboard/ui/icons";
@@ -21,28 +22,47 @@ function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-export function Sidebar() {
+export function Sidebar({ initialUser }: { initialUser?: UserType | null }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<UserType | null>(initialUser ?? null);
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch user session on mount
+    // If initialUser is provided by server render, prefer it and skip client fetch.
+    if (initialUser) {
+      setUser(initialUser);
+      return;
+    }
+
+    // Fallback: fetch current user from API on client-side
     const fetchUser = async () => {
       try {
-        const session = await getSession();
-        setUser(session);
+        const currentUser = await apiService.getCurrentUser();
+        setUser(currentUser);
       } catch (e) {
         console.error("Failed to fetch session", e);
       }
     };
     fetchUser();
-  }, []);
+  }, [initialUser]);
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/login");
-    router.refresh();
+    try {
+      // Call server-side logout endpoint to clear session cookie (if available)
+      // Use credentials: 'include' so cookies are sent
+      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (err) {
+      // If the API logout fails (404 or network), we still proceed to clear client state
+      console.error('Logout API call failed', err);
+    } finally {
+      // Clear local client-side auth data and redirect to login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+      router.push('/login');
+      router.refresh();
+    }
   };
 
   return (
@@ -61,7 +81,7 @@ export function Sidebar() {
           "h-[50px] flex items-center border-b border-[#e5e5e5] dark:border-[#1a1a1a] transition-all duration-200 ease-out w-full",
         )}
       >
-        <Link href="/" className="flex items-center justify-center w-[60px]">
+        <Link href="/" className="flex items-center justify-center w-[100px] px-2">
           <Icons.LogoZap />
         </Link>
       </div>
@@ -77,8 +97,7 @@ export function Sidebar() {
             {/* User Avatar & Info */}
             <div
               className={cn(
-                "flex items-center h-[32px] rounded-md transition-colors",
-                isExpanded ? "px-2" : "justify-center",
+                "flex items-center h-[32px] rounded-md transition-colors px-2",
               )}
             >
               <Avatar className="h-6 w-6 flex-shrink-0">
@@ -96,20 +115,6 @@ export function Sidebar() {
             </div>
 
             {/* Logout Button */}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className={cn(
-                "flex items-center h-[32px] rounded-md transition-colors text-[#878787] hover:text-black dark:hover:text-white hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a]",
-                isExpanded ? "px-2" : "justify-center",
-              )}
-              title="Sign out"
-            >
-              <LogOut size={16} className="flex-shrink-0" />
-              {isExpanded && (
-                <span className="ml-2 text-xs font-medium">Sign out</span>
-              )}
-            </button>
           </div>
         )}
 

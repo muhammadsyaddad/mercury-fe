@@ -11,10 +11,7 @@ export interface User {
 
 export enum UserRole {
   ADMIN = 'admin',
-  MANAGER = 'manager',
-  REVIEWER = 'reviewer',
-  STAFF = 'staff',
-  USER = 'user'
+  WORKER = 'worker'
 }
 
 export interface Camera {

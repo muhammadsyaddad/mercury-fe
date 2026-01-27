@@ -46,7 +46,7 @@ export default function ReviewedDetectionsPage() {
     include_no_waste: false
   });
 
-  const canExportData = hasAnyRole([UserRole.REVIEWER, UserRole.MANAGER, UserRole.ADMIN]);
+  const canExportData = true; // All logged-in users can export
 
   useEffect(() => {
     loadCameras();
@@ -90,7 +90,7 @@ export default function ReviewedDetectionsPage() {
         end_date: filters.end_date ? `${filters.end_date}T23:59:59` : undefined,
         include_no_waste: filters.include_no_waste
       };
-      
+
       const data = await apiService.getDetections(params);
       setPaginatedData(data);
     } catch (error) {
@@ -102,7 +102,7 @@ export default function ReviewedDetectionsPage() {
 
   const handleExport = async () => {
     if (!canExportData) return;
-    
+
     try {
       const params = {
         camera_id: filters.camera_id ? Number.parseInt(filters.camera_id, 10) : undefined,
@@ -111,13 +111,13 @@ export default function ReviewedDetectionsPage() {
         end_date: filters.end_date ? `${filters.end_date}T23:59:59` : undefined,
         include_no_waste: filters.include_no_waste
       };
-      
+
       const exportData = await apiService.exportDetections(params);
-      
+
       // Convert to CSV and download
       const csvContent = convertToCSV(exportData.data);
       downloadCSV(csvContent, 'reviewed_detections_export.csv');
-      
+
       toast.success(`Exported ${exportData.count} reviewed detections`);
     } catch (error) {
       toast.error('Failed to export data');
@@ -126,14 +126,14 @@ export default function ReviewedDetectionsPage() {
 
   const convertToCSV = (data: any[]) => {
     if (data.length === 0) return '';
-    
+
     const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(item => 
-      Object.values(item).map(value => 
+    const rows = data.map(item =>
+      Object.values(item).map(value =>
         typeof value === 'string' ? `"${value}"` : value
       ).join(',')
     );
-    
+
     return [headers, ...rows].join('\n');
   };
 
@@ -141,11 +141,11 @@ export default function ReviewedDetectionsPage() {
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', filename);
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -246,7 +246,7 @@ export default function ReviewedDetectionsPage() {
             View and manage reviewed food waste detection records
           </p>
         </div>
-        
+
         {canExportData && (
           <Button onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
@@ -263,7 +263,7 @@ export default function ReviewedDetectionsPage() {
               <Filter className="w-5 h-5" />
               Filters
             </CardTitle>
-            
+
             {/* Show No Waste Toggle */}
             <div className="flex items-center space-x-2">
               <Label htmlFor="include_no_waste" className="text-sm">Show No Waste</Label>
@@ -287,7 +287,7 @@ export default function ReviewedDetectionsPage() {
                   <SelectValue placeholder="All Cameras" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Cameras</SelectItem>
+                  <SelectItem value="all">All Cameras</SelectItem>
                   {cameras.map(camera => (
                     <SelectItem key={camera.id} value={camera.id.toString()}>
                       {camera.name}
@@ -307,7 +307,7 @@ export default function ReviewedDetectionsPage() {
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {Object.values(FoodCategory).map(category => (
                     <SelectItem key={category} value={category}>
                       {category === 'NO_WASTE' ? 'No Waste' : category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()}
@@ -327,7 +327,7 @@ export default function ReviewedDetectionsPage() {
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="DETECTION_OK">Detection OK</SelectItem>
                   <SelectItem value="NEED_REVISION">Need Revision</SelectItem>
                   <SelectItem value="DETECTION_REJECTED">Detection Rejected</SelectItem>
@@ -406,10 +406,10 @@ export default function ReviewedDetectionsPage() {
               <div className="space-y-4">
                 {paginatedData.items.map((detection) => {
                   const displayValues = getDisplayValues(detection);
-                  
+
                   return (
-                    <div 
-                      key={detection.id} 
+                    <div
+                      key={detection.id}
                       className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer border"
                       onClick={() => openDetectionDetails(detection)}
                     >
@@ -511,7 +511,7 @@ export default function ReviewedDetectionsPage() {
                       {Math.min(paginatedData.page * paginatedData.page_size, paginatedData.total_count)} of{' '}
                       {paginatedData.total_count} results
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="outline"
@@ -522,7 +522,7 @@ export default function ReviewedDetectionsPage() {
                         <ChevronLeft className="w-4 h-4 mr-1" />
                         Previous
                       </Button>
-                      
+
                       <div className="flex items-center space-x-1">
                         {Array.from({ length: Math.min(5, paginatedData.total_pages) }, (_, i) => {
                           let pageNum: number;
@@ -535,7 +535,7 @@ export default function ReviewedDetectionsPage() {
                           } else {
                             pageNum = paginatedData.page - 2 + i;
                           }
-                          
+
                           return (
                             <Button
                               key={pageNum}
@@ -548,7 +548,7 @@ export default function ReviewedDetectionsPage() {
                           );
                         })}
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"

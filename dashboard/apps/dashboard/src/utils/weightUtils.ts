@@ -54,7 +54,7 @@ export const formatWeightSmart = (weightInGrams?: number | null): string => {
 /**
  * Parse weight string to grams (handles both kg and g inputs)
  */
-export const parseWeightToGrams = (weightStr: string): number => {
+export const parseWeightToGrams = (weightStr: string | undefined): number => {
   if (!weightStr || weightStr.trim() === '') {
     return 0;
   }
@@ -66,7 +66,7 @@ export const parseWeightToGrams = (weightStr: string): number => {
     return 0;
   }
 
-  const num = Number.parseFloat(numMatch[1]);
+  const num = Number.parseFloat(numMatch[1] ?? '0');
   
   if (cleanStr.includes('kg')) {
     return num * 1000; // Convert kg to grams

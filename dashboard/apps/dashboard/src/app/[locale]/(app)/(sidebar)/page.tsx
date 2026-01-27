@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
-import { Button } from "@vision_dashboard/ui/button";
 import { Badge } from "@vision_dashboard/ui/badge";
 import { Progress } from "@vision_dashboard/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@vision_dashboard/ui/select";
 import { Skeleton } from "@vision_dashboard/ui/skeleton";
 import { ScrollArea } from "@vision_dashboard/ui/scroll-area";
-import { cn } from "@vision_dashboard/ui/cn";
 import {
   TrendingUp,
   Camera as CameraIcon,
@@ -32,8 +30,7 @@ import {
   DetectionImage,
   DetectionDetailsModal,
 } from "@/components/dashboard";
-import { useAuth } from "@/contexts/AuthContext";
-import type { Detection, Camera, DetectionStats, FoodCategory, MealPeriod } from "@/types";
+import type { Detection, Camera} from "@/types";
 
 type AnalyticsTabType = "cost" | "items" | "weight" | "performance";
 
@@ -67,15 +64,15 @@ const formatCategoryName = (category: string): string => {
   if (!category || category.trim() === "") return "Unknown";
   let categoryName = category;
   if (categoryName.includes("FoodCategory.")) {
-    categoryName = categoryName.split(".")[1].toLowerCase();
+    const parts = categoryName.split(".");
+    categoryName = (parts[1] ?? "").toLowerCase();
   }
   return categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const { defaultCurrency } = useCurrency();
-  
+
   const [analyticsTab, setAnalyticsTab] = useState<AnalyticsTabType>("cost");
   const [selectedMealPeriod, setSelectedMealPeriod] = useState<string>("all");
   const [chartMealFilter, setChartMealFilter] = useState<string>("all");
@@ -203,7 +200,7 @@ export default function DashboardPage() {
   // Calculate time period data from financial trends
   const calculatePeriodData = (startDate: Date, endDate: Date) => {
     if (!financialTrends) return { weight: 0, cost: 0 };
-    
+
     const periodData = financialTrends.filter((trend) => {
       const trendDate = new Date(trend.date);
       return trendDate >= startDate && trendDate <= endDate;
@@ -538,7 +535,8 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                           <DetectionImage
-                            imagePath={detection.image_path}
+                            detectionId={detection.id}
+                            imageType="food_1"
                             alt="Detection"
                             className="w-full h-full object-cover"
                           />
@@ -832,10 +830,10 @@ export default function DashboardPage() {
                 <span className="text-muted-foreground">Total Cameras</span>
                 <span className="font-semibold">{cameras.length}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Today's Detections</span>
-                <span className="font-semibold text-blue-600">{stats?.today_count || 0}</span>
-              </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Today's Detections</span>
+                  <span className="font-semibold text-blue-600">{stats?.today_count ?? 0}</span>
+                </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">System Uptime</span>
                 <span className="font-semibold text-green-600">99.2%</span>

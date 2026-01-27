@@ -20,9 +20,7 @@ export function GlobalSSEHandler({
 
   // Only show popup for users who can review detections
   const canReviewDetections = hasAnyRole([
-    UserRole.STAFF,
-    UserRole.REVIEWER,
-    UserRole.MANAGER,
+    UserRole.WORKER,
     UserRole.ADMIN,
   ]);
 

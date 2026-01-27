@@ -43,10 +43,20 @@ export default function SettingsPage() {
   const queryClient = useQueryClient();
   const { updateDefaultCurrency } = useCurrency();
   
-  // Fetch currency settings
+  // Fetch currency settings (with fallback for when API is not available)
   const { data: currencySettings, isLoading, error } = useQuery<CurrencySettings>({
     queryKey: ['currencySettings'],
-    queryFn: settingsApi.getCurrencySettings,
+    queryFn: async () => {
+      try {
+        return await settingsApi.getCurrencySettings();
+      } catch {
+        // Return default settings if API endpoint doesn't exist yet
+        return {
+          default_currency: 'USD',
+          supported_currencies: currencyOptions.map(c => c.code),
+        };
+      }
+    },
   });
 
   // Form handling

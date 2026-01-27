@@ -238,8 +238,8 @@ export default function PricingPage() {
   }
 
   const prices = pricesData?.items || [];
-  const categoryPrices = prices.filter((p: FoodPrice) => p.price_type === 'category' || p.price_type === 'CATEGORY');
-  const itemPrices = prices.filter((p: FoodPrice) => p.price_type === 'item' || p.price_type === 'ITEM');
+  const categoryPrices = prices.filter((p: FoodPrice) => p.price_type.toUpperCase() === 'CATEGORY');
+  const itemPrices = prices.filter((p: FoodPrice) => p.price_type.toUpperCase() === 'ITEM');
 
   return (
     <div className="space-y-6">

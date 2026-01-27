@@ -131,15 +131,15 @@ export function AnalyticsChart({
     }
   };
 
-  const formatTooltip = (value: unknown, name: string) => {
+  const formatTooltip = (value: unknown, name: string | number): [string, string] => {
     if (typeof value === "number") {
-      const type = name === secondaryDataKey ? secondaryValueType : valueType;
+      const type = String(name) === secondaryDataKey ? secondaryValueType : valueType;
       return [
         formatTooltipValue(value, type),
-        name === "cost" ? "Cost" : name === "weight" ? "Weight" : name,
+        String(name) === "cost" ? "Cost" : String(name) === "weight" ? "Weight" : String(name),
       ];
     }
-    return [value, name];
+    return [String(value), String(name)];
   };
 
   // Create chart config for the ChartContainer
