@@ -42,6 +42,8 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
+      // Allow cookies (session cookies) to be sent with requests when same-origin
+      withCredentials: true,
     });
 
     // Request interceptor:
@@ -49,19 +51,9 @@ class ApiService {
     // - We attach the Authorization header when a token is available in localStorage.
     // - Note: localStorage is only available on the client; guard with `typeof window !== 'undefined'`.
     // - If you prefer cookies or more secure storage (HttpOnly cookies), change this logic accordingly.
-    this.client.interceptors.request.use(
-      (config) => {
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('token');
-          if (token) {
-            // Attach Bearer token for protected endpoints
-            config.headers.Authorization = `Bearer ${token}`;
-          }
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
+    // No automatic Authorization header from localStorage.
+    // We rely on cookie-based session (HttpOnly) for authentication.
+    this.client.interceptors.request.use((config) => config, (error) => Promise.reject(error));
 
     // Response interceptor:
     // - Centralized error handling for all responses.

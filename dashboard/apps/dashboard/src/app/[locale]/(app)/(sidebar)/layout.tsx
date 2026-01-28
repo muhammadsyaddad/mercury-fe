@@ -1,6 +1,6 @@
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/action";
 import { redirect } from "next/navigation";
 
 export default async function Layout({

@@ -1,8 +1,7 @@
 "use client";
 
-import { login } from "@/lib/auth";
+// Using OIDC SSO flow: redirect to server route that starts Authentik authorize flow
 import { Button } from "@vision_dashboard/ui/button";
-import { Icons } from "@vision_dashboard/ui/icons";
 import { Input } from "@vision_dashboard/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
@@ -27,24 +26,14 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (_data: LoginFormData) => {
+    // Start SSO flow by redirecting to our server login route which forwards to Authentik
     setIsLoading(true);
-    setError(null);
-
     try {
-      const result = await login(data.email, data.password);
-
-      if (!result.success) {
-        setError(result.error || "Login failed");
-        setIsLoading(false);
-        return;
-      }
-
-      router.push("/");
-      router.refresh();
+      router.push('/api/auth/login');
     } catch (err) {
-      console.error("Login error:", err);
-      setError("An unexpected error occurred");
+      console.error('SSO redirect failed', err);
+      setError('Failed to start SSO login');
       setIsLoading(false);
     }
   };

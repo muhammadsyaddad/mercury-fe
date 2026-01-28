@@ -8,7 +8,7 @@ import { Lora } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactElement } from "react";
 import { Providers } from "./providers";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/action";
 
 
 

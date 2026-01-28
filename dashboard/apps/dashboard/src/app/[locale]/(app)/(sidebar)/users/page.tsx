@@ -2,6 +2,7 @@ import { getSession } from '@/lib/auth';
 import UsersClient from './UsersClient';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
+import LogoutButton from '@/components/LogoutButton';
 
 /**
  * Server Component wrapper for the Users page.
@@ -29,7 +30,10 @@ export default async function UsersPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle className="text-destructive">Access Denied</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-destructive">Access Denied</CardTitle>
+              <LogoutButton />
+            </div>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">

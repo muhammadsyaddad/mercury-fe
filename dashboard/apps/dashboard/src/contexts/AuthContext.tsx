@@ -89,7 +89,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     username: sessionUser.name,
     email: sessionUser.email,
     full_name: sessionUser.name,
-    role: sessionUser.role.toUpperCase() as UserRole,
+    // Normalize role to lower-case to match UserRole enum values (e.g. 'admin', 'worker')
+    role: sessionUser.role.toLowerCase() as UserRole,
     is_active: true,
     created_at: new Date().toISOString(),
   });
@@ -108,32 +109,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     }
 
     const initializeAuth = async () => {
-      const start = new Date().toISOString();
-      console.debug?.(`[AuthContext] initializeAuth start: ${start}`);
-      const token = localStorage.getItem("token");
-      const savedUser = localStorage.getItem("user");
-      console.debug?.(`[AuthContext] token present: ${!!token}, savedUser present: ${!!savedUser}`);
+      console.debug?.("[AuthContext] initializeAuth - fetching current user via /api/auth/me");
 
-      if (token && savedUser) {
-        try {
-          console.debug?.("[AuthContext] Verifying token via apiService.getCurrentUser");
-          // Verify token is still valid by fetching current user
-          const currentUser = await apiService.getCurrentUser();
-          console.debug?.("[AuthContext] Token valid - setting user", { id: currentUser?.id });
-          setUser(currentUser);
-        } catch (error) {
-          console.warn?.("[AuthContext] Token verification failed. Clearing local storage.", error);
-          // Token is invalid, clear storage
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+      try {
+        // Expect server to read zap_session cookie and return user JSON
+        const resp = await fetch('/api/auth/me');
+        if (!resp.ok) {
+          console.debug?.('[AuthContext] /api/auth/me returned non-OK');
           setUser(null);
+        } else {
+          const currentUser = await resp.json();
+          console.debug?.('[AuthContext] fetched current user', { id: currentUser?.id });
+          // Convert session user shape to internal User type
+          setUser({
+            id: Number(currentUser.id) || 0,
+            username: currentUser.name,
+            email: currentUser.email,
+            full_name: currentUser.name,
+            role: (currentUser.role || 'worker').toLowerCase() as UserRole,
+            is_active: true,
+            created_at: new Date().toISOString(),
+          });
         }
-      } else {
-        console.debug?.("[AuthContext] No token/savedUser found during initialization");
+      } catch (err) {
+        console.warn?.('[AuthContext] Failed to fetch /api/auth/me', err);
+        setUser(null);
       }
 
       setLoading(false);
-      console.debug?.("[AuthContext] initializeAuth complete");
+      console.debug?.('[AuthContext] initializeAuth complete');
     };
 
     initializeAuth();
