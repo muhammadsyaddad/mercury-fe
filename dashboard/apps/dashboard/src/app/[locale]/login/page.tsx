@@ -5,37 +5,16 @@ import { Button } from "@vision_dashboard/ui/button";
 import { Input } from "@vision_dashboard/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-
-type LoginFormData = {
-  email: string;
-  password: string;
-};
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>();
-
-  const onSubmit = async (_data: LoginFormData) => {
-    // Start SSO flow by redirecting to our server login route which forwards to Authentik
+  const startSSO = () => {
     setIsLoading(true);
-    try {
-      router.push('/api/auth/login');
-    } catch (err) {
-      console.error('SSO redirect failed', err);
-      setError('Failed to start SSO login');
-      setIsLoading(false);
-    }
+    // Force full-page navigation so server redirect to IdP is followed correctly
+    window.location.href = '/api/auth/login';
   };
 
   return (
@@ -72,76 +51,20 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-medium text-black dark:text-white mb-1.5"
-                >
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register("email", { required: "Email is required" })}
-                  className="h-10 bg-white dark:bg-[#0a0a0a] border-[#e5e5e5] dark:border-[#2a2a2a] text-black dark:text-white placeholder:text-[#878787] focus:border-black dark:focus:border-white focus:ring-0 text-sm"
-                  placeholder="m@example.com"
-                />
-                {errors.email && (
-                  <p className="text-[#878787] text-xs mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-xs font-medium text-black dark:text-white mb-1.5"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    {...register("password", {
-                      required: "Password is required",
-                    })}
-                    className="h-10 pr-10 bg-white dark:bg-[#0a0a0a] border-[#e5e5e5] dark:border-[#2a2a2a] text-black dark:text-white placeholder:text-[#878787] focus:border-black dark:focus:border-white focus:ring-0 text-sm"
-                    placeholder="Enter password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#878787] hover:text-black dark:hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-[#878787] text-xs mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Submit Button */}
+            {/* SSO Login Button */}
+            <div className="space-y-4">
               <Button
-                type="submit"
+                onClick={startSSO}
                 disabled={isLoading}
                 className="w-full h-10 bg-black dark:bg-white text-white dark:text-black font-medium hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-[#878787] border-t-white dark:border-t-black rounded-full animate-spin" />
                 ) : (
-                  "Login"
+                  "Sign in with Authentik"
                 )}
               </Button>
-            </form>
+            </div>
 
             {/* Demo Credentials */}
             {/*<div className="mt-6 text-center text-[10px] text-[#878787]">
