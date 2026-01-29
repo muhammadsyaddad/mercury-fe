@@ -2,7 +2,7 @@ import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { getSession } from "@/lib/action";
 import { redirect } from "next/navigation";
-
+import AuthProvider from "./providers";
 export default async function Layout({
   children,
 }: {
@@ -20,12 +20,13 @@ export default async function Layout({
   return (
     <div>
       <div className="relative">
-        <Sidebar initialUser={session} />
-
-        <div className="md:ml-[70px] pb-8">
-          <Header />
-          <div className="p-6">{children}</div>
-        </div>
+        <AuthProvider>
+          <Sidebar initialUser={session.user} />
+          <div className="md:ml-[70px] pb-8">
+            <Header />
+            <div className="p-6">{children}</div>
+            </div>
+        </AuthProvider>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { getSession } from '@/lib/action';
 import UsersClient from './UsersClient';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
+import { LogoutButton } from "@/components/logout-button";
 
 /**
  * Server Component wrapper for the Users page.
@@ -31,15 +32,7 @@ export default async function UsersPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-destructive">Access Denied</CardTitle>
-              {/* Server-side logout form — posts to the server route that clears cookies and redirects */}
-              <form action="/api/auth/logout" method="post" className="ml-2">
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-3 py-1 border rounded text-sm bg-transparent hover:bg-muted"
-                >
-                  Logout
-                </button>
-              </form>
+              <LogoutButton />
             </div>
           </CardHeader>
           <CardContent>

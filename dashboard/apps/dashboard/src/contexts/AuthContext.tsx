@@ -11,6 +11,7 @@ import type { User, LoginCredentials } from "../types";
 import { UserRole } from "../types";
 import { apiService } from "../services/api";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 interface AuthContextType {
   user: User | null;
@@ -173,6 +174,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     localStorage.removeItem("user");
     setUser(null);
     toast.success("Logged out successfully");
+    // Sign out from NextAuth session
+    signOut({ callbackUrl: "/login" });
   };
 
   const hasRole = (role: UserRole): boolean => {

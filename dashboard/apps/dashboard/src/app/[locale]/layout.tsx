@@ -7,9 +7,6 @@ import { GeistSans } from "geist/font/sans";
 import { Lora } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactElement } from "react";
-import { Providers } from "./providers";
-import { getSession } from "@/lib/action";
-
 
 
 const lora = Lora({
@@ -38,7 +35,6 @@ export default async function Layout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const session = await getSession();
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -49,7 +45,7 @@ export default async function Layout({
         )}
       >
         <NuqsAdapter>
-          <Providers locale={locale} initialUser={session}>{children}</Providers>
+          {children}
           <Toaster />
         </NuqsAdapter>
       </body>

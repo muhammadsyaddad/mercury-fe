@@ -1,13 +1,13 @@
 "use client";
 
-import { type User as UserType } from "@/lib/action";
+import type { User as UserType } from "@/lib/action";
 import { apiService } from "@/services/api";
 import { Avatar, AvatarFallback } from "@vision_dashboard/ui/avatar";
 import { cn } from "@vision_dashboard/ui/cn";
 import { Icons } from "@vision_dashboard/ui/icons";
 import { LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MainMenu } from "./main-menu";
 
@@ -25,7 +25,6 @@ function getInitials(name: string): string {
 export function Sidebar({ initialUser }: { initialUser?: UserType | null }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [user, setUser] = useState<UserType | null>(initialUser ?? null);
-  const router = useRouter();
 
   useEffect(() => {
     // If initialUser is provided by server render, prefer it and skip client fetch.
@@ -46,23 +45,8 @@ export function Sidebar({ initialUser }: { initialUser?: UserType | null }) {
     fetchUser();
   }, [initialUser]);
 
-  const handleLogout = async () => {
-    try {
-      // Call server-side logout endpoint to clear session cookie (if available)
-      // Use credentials: 'include' so cookies are sent
-      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
-    } catch (err) {
-      // If the API logout fails (404 or network), we still proceed to clear client state
-      console.error('Logout API call failed', err);
-    } finally {
-      // Clear local client-side auth data and redirect to login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
-      router.push('/login');
-      router.refresh();
-    }
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
   };
 
   return (

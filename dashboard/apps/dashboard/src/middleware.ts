@@ -1,102 +1,66 @@
-import { createI18nMiddleware } from "next-international/middleware";
-import { type NextRequest, NextResponse } from "next/server";
-
-const SESSION_COOKIE_NAME = "zap_session";
-
-const I18nMiddleware = createI18nMiddleware({
-  locales: ["en"],
-  defaultLocale: "en",
-  urlMappingStrategy: "rewrite",
-});
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
-  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
+  // Debug logging
+  console.log(`[Middleware] Path: ${pathname}`);
 
-  // Get locale from path (first segment after /)
-  const pathSegments = path.split("/").filter(Boolean);
-  const locale = pathSegments[0] === "en" ? "en" : "";
-  const pathWithoutLocale = locale
-    ? `/${pathSegments.slice(1).join("/")}`
-    : path;
-
-  // Define protected routes (paths without locale prefix)
-  // Define protected routes (paths without locale prefix)
-  const protectedPaths = [
-    "/",
-    "/users",
-    "/reviewed-detections",
-    "/executive",
-    "/account",
-    "/cameras",
-    "/history",
-    "/settings",
-    "/menu-management",
-    "/pricing",
-    "/restaurant-metrics",
-    "/waste-targets",
-    "/trays",
-  ];
-
-  const isProtected = protectedPaths.some(
-    (p) =>
-      pathWithoutLocale === p ||
-      pathWithoutLocale.startsWith(`${p}/`) ||
-      path === `/${locale}${p}` ||
-      path.startsWith(`/${locale}${p}/`),
-  );
-
-  // Check if accessing login page
-  const isLoginPage =
-    pathWithoutLocale === "/login" || path === `/${locale}/login`;
-
-  // If no session and trying to access protected route, redirect to login
-  if (!sessionCookie && isProtected && !isLoginPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = locale ? `/${locale}/login` : "/login";
-    return NextResponse.redirect(url);
+  // Skip middleware for static files and assets
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/assets") ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2)$/)
+  ) {
+    console.log(`[Middleware] Skipping static file: ${pathname}`);
+    return NextResponse.next();
   }
 
-  // If session exists, check RBAC
-  if (sessionCookie) {
-    try {
-      const user = JSON.parse(sessionCookie.value);
-
-      // Only admin can access /garbage-history
-      const isGarbageHistory =
-        pathWithoutLocale === "/garbage-history" ||
-        pathWithoutLocale.startsWith("/garbage-history/") ||
-        path === `/${locale}/garbage-history` ||
-        path.startsWith(`/${locale}/garbage-history/`);
-
-      if (isGarbageHistory && user.role !== "admin") {
-        // Redirect to dashboard
-        const url = request.nextUrl.clone();
-        url.pathname = locale ? `/${locale}` : "/";
-        return NextResponse.redirect(url);
-      }
-
-      // Prevent authenticated users from visiting login page
-      if (isLoginPage) {
-        const url = request.nextUrl.clone();
-        url.pathname = locale ? `/${locale}` : "/";
-        return NextResponse.redirect(url);
-      }
-    } catch (e) {
-      // Invalid cookie, clear it and redirect to login
-      const url = request.nextUrl.clone();
-      url.pathname = locale ? `/${locale}/login` : "/login";
-      const response = NextResponse.redirect(url);
-      response.cookies.delete(SESSION_COOKIE_NAME);
-      return response;
-    }
+  // Allow all NextAuth API routes
+  if (pathname.startsWith("/api/auth")) {
+    console.log(`[Middleware] Allowing NextAuth route: ${pathname}`);
+    return NextResponse.next();
   }
 
-  // Apply i18n middleware
-  return I18nMiddleware(request);
+  // Allow login page (with or without locale prefix)
+  if (pathname === "/login" || pathname.endsWith("/login") || pathname.includes("/login")) {
+    console.log(`[Middleware] Allowing login page: ${pathname}`);
+    return NextResponse.next();
+  }
+
+  // Check for NextAuth session token
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  console.log(`[Middleware] Token exists: ${!!token}`);
+
+  // If no token and trying to access protected route, redirect to login
+  if (!token) {
+    // Redirect to /en/login (with locale prefix since that's where the page actually is)
+    const loginUrl = new URL("/en/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    console.log(`[Middleware] No token, redirecting to: ${loginUrl.toString()}`);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // User is authenticated, allow access
+  console.log(`[Middleware] Authenticated, allowing: ${pathname}`);
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api|assets).*)"],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };
