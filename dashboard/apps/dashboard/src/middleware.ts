@@ -22,7 +22,23 @@ export async function middleware(request: NextRequest) {
     : path;
 
   // Define protected routes (paths without locale prefix)
-  const protectedPaths = ["/", "/visitors", "/garbage-history"];
+  // Define protected routes (paths without locale prefix)
+  const protectedPaths = [
+    "/",
+    "/users",
+    "/reviewed-detections",
+    "/executive",
+    "/account",
+    "/cameras",
+    "/history",
+    "/settings",
+    "/menu-management",
+    "/pricing",
+    "/restaurant-metrics",
+    "/waste-targets",
+    "/trays",
+  ];
+
   const isProtected = protectedPaths.some(
     (p) =>
       pathWithoutLocale === p ||

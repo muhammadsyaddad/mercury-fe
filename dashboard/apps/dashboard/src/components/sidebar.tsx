@@ -1,6 +1,6 @@
 "use client";
 
-import { type User as UserType } from "@/lib/auth";
+import { type User as UserType } from "@/lib/action";
 import { apiService } from "@/services/api";
 import { Avatar, AvatarFallback } from "@vision_dashboard/ui/avatar";
 import { cn } from "@vision_dashboard/ui/cn";
