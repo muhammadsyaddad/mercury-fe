@@ -43,7 +43,7 @@ const formatCategoryName = (category: string): string => {
 export default function ExecutiveDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const refreshInterval = 5 * 60 * 1000; // 5 minutes
+  const refreshInterval = 5* 60 * 1000; // 5 minutes
   const { defaultCurrency } = useCurrency();
 
   // Data Queries

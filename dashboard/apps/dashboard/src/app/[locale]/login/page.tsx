@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@vision_dashboard/ui/button";
 import Image from "next/image";
@@ -9,11 +9,13 @@ import Image from "next/image";
 export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get the callback URL from query params, default to "/"
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const localeSegment = pathname.split("/")[1] || "en";
+  const defaultCallbackUrl = `/${localeSegment}`;
+  const callbackUrl = searchParams.get("callbackUrl") || defaultCallbackUrl;
   const error = searchParams.get("error");
 
   // If authenticated, redirect to callback URL

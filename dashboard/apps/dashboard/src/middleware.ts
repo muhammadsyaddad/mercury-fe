@@ -8,6 +8,12 @@ export async function middleware(request: NextRequest) {
   // Debug logging
   console.log(`[Middleware] Path: ${pathname}`);
 
+  if (pathname === "/") {
+    const homeUrl = new URL("/id", request.url);
+    console.log(`[Middleware] Redirecting root to: ${homeUrl.toString()}`);
+    return NextResponse.redirect(homeUrl);
+  }
+
   // Skip middleware for static files and assets
   if (
     pathname.startsWith("/_next") ||
@@ -41,9 +47,9 @@ export async function middleware(request: NextRequest) {
 
   // If no token and trying to access protected route, redirect to login
   if (!token) {
-    // Redirect to /en/login (with locale prefix since that's where the page actually is)
-    const loginUrl = new URL("/en/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    // Redirect to /id/login (with locale prefix since that's where the page actually is)
+    const loginUrl = new URL("/id/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", pathname === "/" ? "/id" : pathname);
     console.log(`[Middleware] No token, redirecting to: ${loginUrl.toString()}`);
     return NextResponse.redirect(loginUrl);
   }
