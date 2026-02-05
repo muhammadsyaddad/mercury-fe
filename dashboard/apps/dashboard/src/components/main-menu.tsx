@@ -26,6 +26,11 @@ type NavItem = {
   adminOnly?: boolean;
 };
 
+type LocaleMeta = {
+  prefix: string;
+  withLocale: (path: string) => string;
+};
+
 const items: NavItem[] = [
   {
     path: "/",
@@ -101,6 +106,7 @@ interface ItemProps {
   isExpanded: boolean;
   onSelect?: () => void;
   userRole?: string;
+  locale: LocaleMeta;
 }
 
 const Item = ({
@@ -109,6 +115,7 @@ const Item = ({
   isExpanded,
   onSelect,
   userRole,
+  locale,
 }: ItemProps) => {
   const Icon = item.icon;
 
@@ -120,7 +127,7 @@ const Item = ({
   return (
     <Link
       prefetch
-      href={item.path}
+      href={locale.withLocale(item.path)}
       onClick={() => onSelect?.()}
       className="group block"
     >
@@ -170,6 +177,13 @@ type Props = {
 
 export function MainMenu({ onSelectAction, isExpanded = false, userRole }: Props) {
   const pathname = usePathname();
+  const localeMatch = pathname?.match(/^\/([a-z]{2})(?=\/|$)/);
+  const localePrefix = localeMatch ? `/${localeMatch[1]}` : "";
+  const locale: LocaleMeta = {
+    prefix: localePrefix,
+    withLocale: (path: string) =>
+      localePrefix ? (path === "/" ? localePrefix : `${localePrefix}${path}`) : path,
+  };
 
   // Remove locale prefix for matching
   const pathWithoutLocale = pathname?.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/";
@@ -193,6 +207,7 @@ export function MainMenu({ onSelectAction, isExpanded = false, userRole }: Props
               isExpanded={isExpanded}
               onSelect={onSelectAction}
               userRole={userRole}
+              locale={locale}
             />
           );
         })}

@@ -45,11 +45,14 @@ export function DetectionImage({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Skip loading if we already have this image cached
-    if (imageCache.has(cacheKey)) {
-      return;
-    }
+    const nextCachedUrl = imageCache.get(cacheKey) || null;
+    setImageUrl(nextCachedUrl);
+    setLoading(!nextCachedUrl);
+    setError(null);
+    setRetryCount(0);
+  }, [cacheKey]);
 
+  useEffect(() => {
     let mounted = true;
 
     const loadImage = async () => {
@@ -73,19 +76,16 @@ export function DetectionImage({
         );
 
         if (mounted) {
-          // Fallback to static URL if available
-          let fallbackUrl: string;
           if (fallbackPath) {
-            fallbackUrl = apiService.getImageUrl(fallbackPath);
+            const fallbackUrl = apiService.getImageUrl(fallbackPath);
+            setImageUrl(fallbackUrl);
+            setLoading(false);
+            imageCache.set(cacheKey, fallbackUrl);
           } else {
-            // Try to construct a likely static URL
-            const likelyPath = `images/${detectionId}/${imageType}_*.jpg`;
-            fallbackUrl = apiService.getImageUrl(likelyPath);
+            setImageUrl(null);
+            setError("Image URL not available");
+            setLoading(false);
           }
-          setImageUrl(fallbackUrl);
-          setLoading(false);
-          // Cache fallback URL too
-          imageCache.set(cacheKey, fallbackUrl);
         }
       }
     };
@@ -95,7 +95,7 @@ export function DetectionImage({
     return () => {
       mounted = false;
     };
-  }, [detectionId, imageType, cacheKey, fallbackPath]);
+  }, [detectionId, imageType, cacheKey, fallbackPath, retryCount]);
 
   const handleImageError = () => {
     if (retryCount < maxRetries) {
