@@ -1,0 +1,80 @@
+@media (min-width: 768px) {
+    /* 1. Layout Utama Split Screen */
+    ak-flow-executor.pf-c-login {
+        background-image: none !important;
+        display: flex !important;
+        flex-direction: row-reverse !important; /* Form kiri, gambar kanan */
+        padding: 0 !important;
+        height: 100vh !important;
+    }
+
+    /* 2. Target Kolom Form (Akses via Shadow DOM Part) */
+    /* Kita pakai flex-start agar padding-top bisa mendorong form ke bawah secara manual */
+    ak-flow-executor::part(main) {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        background-color: #1b1d21 !important; /* Warna gelap background utama */
+
+        /* PENGATURAN JARAK: Sumbu X dan Atas Saja */
+        padding-top: 15vh !important; /* Turunkan form dari atas (sesuaikan vh ini) */
+        padding-left: 5rem !important; /* Jarak Sumbu X Kiri */
+        padding-right: 5rem !important; /* Jarak Sumbu X Kanan */
+        padding-bottom: 0 !important; /* Pastikan bawah tetap kosong */
+    }
+
+    /* 3. Styling Box Form (Minimalis & Kecil) */
+    .pf-c-login__main-body {
+        width: 100% !important;
+        max-width: 320px !important; /* Form mungil sesuai request */
+        margin: 0 !important;
+        padding: 2rem !important;
+        background-color: #ffffff !important; /* Putih bersih sesuai style kamu */
+        border-radius: 8px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* 4. Bagian Gambar (Sisi Kanan) */
+    .pf-c-login::before {
+        content: "" !important;
+        width: 50% !important;
+        height: 100vh !important;
+        background-image: url("https://images.unsplash.com/photo-1768697581060-52e2edbee7fa?q=80&w=2070&auto=format&fit=crop") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        display: block !important;
+    }
+
+    /* 5. Elemen yang Dihilangkan (Clean Look) */
+    .pf-c-login__header,
+    .pf-c-login__main-header,
+    .pf-c-login__footer,
+    .branding-logo {
+        display: none !important;
+    }
+
+    /* 6. Form Input & Tombol */
+    .pf-c-form-control {
+        border-radius: 4px !important;
+        border: 1px solid #e1e1e1 !important;
+        color: #000 !important;
+        background-color: #f9f9f9 !important;
+    }
+
+    .pf-m-primary {
+        background-color: #000000 !important; /* Tombol Hitam */
+        border: none !important;
+        color: white !important;
+        font-weight: bold !important;
+        margin-top: 1rem !important;
+    }
+}
+
+/* Fix Mobile: Gambar hilang, form full screen */
+@media (max-width: 767px) {
+    .pf-c-login__main {
+        padding: 2rem !important;
+        background-color: #ffffff !important;
+    }
+}

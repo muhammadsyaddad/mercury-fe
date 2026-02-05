@@ -69,41 +69,41 @@ export function toUTCISOString(date: Date): string {
  * --------------------------------------------------------------------------*/
 
 
- export const authOptions: NextAuthOptions = {
-   providers: [
-     {
-       id: "authentik",
-       name: "Authentik",
-       type: "oauth",
-       wellKnown: `${process.env.AUTHENTIK_ISSUER}/application/o/mercuri-ancol/.well-known/openid-configuration`,
-       authorization: { params: { scope: "openid email profile" } },
-       idToken: true,
-       checks: ["pkce", "state"],
-       clientId: process.env.AUTHENTIK_CLIENT_ID!,
-       clientSecret: process.env.AUTHENTIK_CLIENT_SECRET!,
-       profile(profile) {
-         return {
-           id: profile.sub,
-           name: profile.name || profile.preferred_username,
-           email: profile.email,
-         };
-       },
-     },
-   ],
-   callbacks: {
-     async jwt({ token, account }) {
-       if (account) {
-         token.accessToken = account.access_token;
-         token.refreshToken = account.refresh_token;
-       }
-       return token;
-     },
-     async session({ session, token }) {
-       session.accessToken = token.accessToken as string;
-       return session;
-     },
-   },
-   pages: {
-     signIn: "/login",
-   },
- };
+export const authOptions: NextAuthOptions = {
+  providers: [
+    {
+      id: "authentik",
+      name: "Authentik",
+      type: "oauth",
+      wellKnown: `${process.env.AUTHENTIK_ISSUER}/application/o/mercuri-ancol/.well-known/openid-configuration`,
+      authorization: { params: { scope: "openid email profile" } },
+      idToken: true,
+      checks: ["pkce", "state"],
+      clientId: process.env.AUTHENTIK_CLIENT_ID!,
+      clientSecret: process.env.AUTHENTIK_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name || profile.preferred_username,
+          email: profile.email,
+        };
+      },
+    },
+  ],
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
+};

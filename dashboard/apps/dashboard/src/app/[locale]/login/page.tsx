@@ -59,11 +59,11 @@ export default function LoginPage() {
             {/* Error Message */}
             {error && (
               <div className="mb-4 p-3 bg-[#fafafa] dark:bg-[#1a1a1a] border border-[#e5e5e5] dark:border-[#2a2a2a] rounded-md text-xs text-black dark:text-white text-center">
-                {error === "OAuthCallback" 
+                {error === "OAuthCallback"
                   ? "Authentication failed. Please try again."
                   : error === "Configuration"
-                  ? "Server configuration error. Please contact support."
-                  : `Authentication error: ${error}`}
+                    ? "Server configuration error. Please contact support."
+                    : `Authentication error: ${error}`}
               </div>
             )}
 
