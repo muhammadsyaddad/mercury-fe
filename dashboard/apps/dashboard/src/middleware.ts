@@ -19,6 +19,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/assets") ||
+    pathname.startsWith("/.well-known") ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2)$/)
   ) {
     console.log(`[Middleware] Skipping static file: ${pathname}`);
@@ -31,8 +32,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow login page (with or without locale prefix)
-  if (pathname === "/login" || pathname.endsWith("/login") || pathname.includes("/login")) {
+  // Redirect bare /login to locale login
+  if (pathname === "/login") {
+    const loginUrl = new URL("/id/login", request.url);
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+    if (callbackUrl) {
+      loginUrl.searchParams.set("callbackUrl", callbackUrl);
+    }
+    console.log(`[Middleware] Redirecting /login to: ${loginUrl.toString()}`);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Allow login page (with locale prefix)
+  if (pathname.endsWith("/login") || pathname.includes("/login")) {
     console.log(`[Middleware] Allowing login page: ${pathname}`);
     return NextResponse.next();
   }

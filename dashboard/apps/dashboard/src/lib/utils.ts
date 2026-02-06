@@ -69,14 +69,44 @@ export function toUTCISOString(date: Date): string {
  * --------------------------------------------------------------------------*/
 
 
+const rawAuthentikIssuer = process.env.AUTHENTIK_ISSUER || "";
+const normalizedAuthentikIssuer = rawAuthentikIssuer
+  ? rawAuthentikIssuer.replace(/\/+$/, "")
+  : "";
+const issuerBase = normalizedAuthentikIssuer.includes("/application/o/")
+  ? normalizedAuthentikIssuer
+  : `${normalizedAuthentikIssuer}/application/o/mercuri-ancol`;
+const authentikIssuer = issuerBase ? `${issuerBase}/` : "";
+
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV !== "production",
+  logger: {
+    error(code, metadata) {
+      console.error("[NextAuth][error]", code, metadata);
+    },
+    warn(code) {
+      console.warn("[NextAuth][warn]", code);
+    },
+    debug(code, metadata) {
+      console.debug("[NextAuth][debug]", code, metadata);
+    },
+  },
+  events: {
+    error(message) {
+      console.error("[NextAuth][event:error]", message);
+    },
+  },
   providers: [
     {
       id: "authentik",
       name: "Authentik",
       type: "oauth",
-      wellKnown: `${process.env.AUTHENTIK_ISSUER}/application/o/mercuri-ancol/.well-known/openid-configuration`,
+      issuer: authentikIssuer,
+      wellKnown: `${authentikIssuer}.well-known/openid-configuration`,
       authorization: { params: { scope: "openid email profile" } },
+      client: {
+        token_endpoint_auth_method: "client_secret_post",
+      },
       idToken: true,
       checks: ["pkce", "state"],
       clientId: process.env.AUTHENTIK_CLIENT_ID!,
@@ -104,6 +134,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/id/login",
   },
 };
