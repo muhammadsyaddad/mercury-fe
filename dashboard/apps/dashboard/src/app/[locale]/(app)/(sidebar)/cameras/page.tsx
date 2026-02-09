@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
@@ -39,6 +40,7 @@ import { trayService } from "@/services/trayService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Camera, Tray } from "@/types";
 import { UserRole } from "@/types";
+import { hasGroup } from "@/lib/helper";
 
 interface CameraFormData {
   name: string;
@@ -77,15 +79,20 @@ const getDefaultRTSPPath = (cameraType: string) => {
 };
 
 export default function CamerasPage() {
-  const { hasAnyRole } = useAuth();
+  const {data: session} = useSession()
   const queryClient = useQueryClient();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCamera, setEditingCamera] = useState<Camera | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<Camera | null>(null);
 
-  const canManageCameras = hasAnyRole([UserRole.ADMIN]);
-
+  const canManageCameras = hasGroup(session?.user?.groups ?? [], "engineer");
+  console.log("Debug Condition:", {
+      value: canManageCameras,
+      type: typeof hasGroup,
+      timestamp: new Date().toISOString(),
+      isNotNull: canManageCameras !== null,
+    });
   const {
     register,
     handleSubmit,

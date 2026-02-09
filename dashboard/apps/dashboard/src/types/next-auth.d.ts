@@ -8,13 +8,17 @@ declare module "next-auth" {
     accessToken?: string;
     user: {
       /** User ID from provider (Authentik) */
-      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      groups?: string[];
     } & DefaultSession["user"]
   }
 
   interface User extends DefaultUser {
     accessToken?: string;
     refreshToken?: string;
+    groups?: string[]
   }
 }
 
@@ -23,5 +27,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
     refreshToken?: string;
+    groups?: string[];
   }
 }

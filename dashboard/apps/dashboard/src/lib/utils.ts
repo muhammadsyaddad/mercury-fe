@@ -103,7 +103,7 @@ export const authOptions: NextAuthOptions = {
       type: "oauth",
       issuer: authentikIssuer,
       wellKnown: `${authentikIssuer}.well-known/openid-configuration`,
-      authorization: { params: { scope: "openid email profile" } },
+      authorization: { params: { scope: "openid email profile groups" } },
       client: {
         token_endpoint_auth_method: "client_secret_post",
       },
@@ -116,20 +116,20 @@ export const authOptions: NextAuthOptions = {
           id: profile.sub,
           name: profile.name || profile.preferred_username,
           email: profile.email,
+          groups: profile.groups || [],
         };
       },
     },
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        token.groups = (profile as any).groups || [];
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      session.user.groups = (token.groups as string[]) || [];
       return session;
     },
   },
