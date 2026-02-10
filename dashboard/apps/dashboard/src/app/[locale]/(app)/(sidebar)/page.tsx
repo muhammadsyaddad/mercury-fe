@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
 import { Badge } from "@vision_dashboard/ui/badge";
 import { Progress } from "@vision_dashboard/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@vision_dashboard/ui/select";
-import { Skeleton } from "@vision_dashboard/ui/skeleton";
+import { Spinner } from "@vision_dashboard/ui/spinner";
 import { ScrollArea } from "@vision_dashboard/ui/scroll-area";
 import {
   TrendingUp,
@@ -19,12 +18,11 @@ import {
   Activity,
   Utensils,
 } from "lucide-react";
-import { apiService } from "@/services/api";
-import { financialAnalyticsApi, wasteTargetsApi, restaurantPerformanceApi } from "@/services/financialApi";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
 import { getTodayLocalDate } from "@/utils/dateUtils";
 import { getDisplayValues } from "@/utils/detectionDisplay";
+import { useDashboardQueries } from "@/lib/dashboard-queries";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
 import { DetectionImage } from "@/components/dashboard/DetectionImage";
@@ -79,82 +77,38 @@ export default function DashboardPage() {
   const [recentDetections, setRecentDetections] = useState<Detection[]>([]);
   const [cameraStatuses, setCameraStatuses] = useState<Record<string, { status: string }>>({});
 
-  // Fetch detection stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["detectionStats"],
-    queryFn: () => apiService.getDetectionStats(),
-    staleTime: 60 * 1000,
+  const dashboardQueries = useDashboardQueries({
+    selectedMealPeriod,
+    chartMealFilter,
+    analyticsTab,
+    hasRestaurantData: true,
   });
 
-  // Fetch cameras
-  const { data: cameras = [], isLoading: camerasLoading } = useQuery({
-    queryKey: ["cameras"],
-    queryFn: () => apiService.getCameras({ limit: 50 }),
-    staleTime: 2 * 60 * 1000,
-  });
+  const {
+    statsQuery,
+    camerasQuery,
+    recentDetectionsQuery,
+    cameraStatusesQuery,
+    targetsSummaryQuery,
+    financialTrendsQuery,
+    costWeightCombinedQuery,
+    categoryCostsQuery,
+    restaurantPerformanceKPIsQuery,
+    restaurantPerformanceTrendsQuery,
+  } = dashboardQueries;
 
-  // Fetch recent detections
-  const { data: detectionsData } = useQuery({
-    queryKey: ["recentDetections"],
-    queryFn: () => apiService.getDetections({ page: 1, page_size: 10 }),
-    staleTime: 30 * 1000,
-  });
-
-  // Fetch camera statuses
-  const { data: statusesData } = useQuery({
-    queryKey: ["cameraStatuses"],
-    queryFn: () => apiService.getCameraStatuses(),
-    staleTime: 30 * 1000,
-  });
-
-  // Fetch targets summary
-  const { data: targetsSummary } = useQuery({
-    queryKey: ["targetsSummary"],
-    queryFn: wasteTargetsApi.getTargetsSummary,
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch financial summary
-  const { data: financialSummary } = useQuery({
-    queryKey: ["financialSummary", 30, selectedMealPeriod],
-    queryFn: () => financialAnalyticsApi.getCostSummary(30, undefined, selectedMealPeriod !== "all" ? selectedMealPeriod : undefined),
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch financial trends
-  const { data: financialTrends } = useQuery({
-    queryKey: ["financialTrends", 31, selectedMealPeriod],
-    queryFn: () => financialAnalyticsApi.getCostTrends(31, undefined, selectedMealPeriod !== "all" ? selectedMealPeriod : undefined),
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch cost & weight combined trends
-  const { data: costWeightCombinedData } = useQuery({
-    queryKey: ["financialTrends", "costWeightCombined", 31, chartMealFilter],
-    queryFn: () => financialAnalyticsApi.getCostTrends(31, undefined, chartMealFilter !== "all" ? chartMealFilter : undefined),
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch restaurant performance KPIs
-  const { data: restaurantPerformanceKPIs } = useQuery({
-    queryKey: ["restaurantPerformanceKPIs", 30],
-    queryFn: () => restaurantPerformanceApi.getPerformanceKPIs(30),
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch restaurant performance trends
-  const { data: restaurantPerformanceTrends } = useQuery({
-    queryKey: ["restaurantPerformanceTrends", 30],
-    queryFn: () => restaurantPerformanceApi.getDailyTrends(30),
-    staleTime: 2 * 60 * 1000,
-  });
-
-  // Fetch category costs for analytics tabs
-  const { data: categoryCosts } = useQuery({
-    queryKey: ["categoryCosts", 30, selectedMealPeriod],
-    queryFn: () => financialAnalyticsApi.getCategoryCosts(30, selectedMealPeriod !== "all" ? selectedMealPeriod : undefined),
-    staleTime: 2 * 60 * 1000,
-  });
+  const stats = statsQuery.data;
+  const statsLoading = statsQuery.isLoading;
+  const cameras = camerasQuery.data ?? [];
+  const camerasLoading = camerasQuery.isLoading;
+  const detectionsData = recentDetectionsQuery.data;
+  const statusesData = cameraStatusesQuery.data;
+  const targetsSummary = targetsSummaryQuery.data;
+  const financialTrends = financialTrendsQuery.data;
+  const costWeightCombinedData = costWeightCombinedQuery.data;
+  const categoryCosts = categoryCostsQuery.data;
+  const restaurantPerformanceKPIs = restaurantPerformanceKPIsQuery.data;
+  const restaurantPerformanceTrends = restaurantPerformanceTrendsQuery.data;
 
   // Update recent detections when data changes
   useEffect(() => {
@@ -254,16 +208,10 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-6">
-        <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
-          <Skeleton className="lg:col-span-3 h-96" />
-          <Skeleton className="lg:col-span-5 h-96" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Spinner className="h-12 w-12 mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );

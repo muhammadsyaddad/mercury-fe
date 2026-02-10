@@ -20,7 +20,7 @@ export default async function Layout({
   return (
     <div>
       <div className="relative">
-        <AuthProvider>
+        <AuthProvider session={session}>
           <Sidebar initialUser={session.user} />
           <div className="md:ml-[70px] pb-8">
             <Header />

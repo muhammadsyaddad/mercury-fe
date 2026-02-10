@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { Suspense } from "react";
 import { Spinner } from "@vision_dashboard/ui/spinner";
+import { SessionDataProvider } from "@/contexts/SessionContext";
 
 function LoadingFallback() {
   return (
@@ -20,9 +21,11 @@ export default function LoginLayout({
 }) {
   return (
     <SessionProvider>
-      <Suspense fallback={<LoadingFallback />}>
-        {children}
-      </Suspense>
+      <SessionDataProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          {children}
+        </Suspense>
+      </SessionDataProvider>
     </SessionProvider>
   );
 }

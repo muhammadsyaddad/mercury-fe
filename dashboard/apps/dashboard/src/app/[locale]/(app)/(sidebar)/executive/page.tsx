@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useExecutiveQueries } from "@/lib/executive-queries";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@vision_dashboard/ui/card";
 import { Button } from "@vision_dashboard/ui/button";
 import { Badge } from "@vision_dashboard/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
-import { Skeleton } from "@vision_dashboard/ui/skeleton";
+import { Spinner } from "@vision_dashboard/ui/spinner";
 import { cn } from "@vision_dashboard/ui/cn";
 import {
   RefreshCw,
@@ -27,8 +27,6 @@ import {
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
-import { financialAnalyticsApi, wasteTargetsApi } from "@/services/financialApi";
-import { executiveAnalyticsApi } from "@/services/executiveAnalyticsApi";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
@@ -45,37 +43,21 @@ const formatCategoryName = (category: string): string => {
 export default function ExecutiveDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const refreshInterval = 5* 60 * 1000; // 5 minutes
+  const { dashboardQuery, intelligenceQuery, targetsSummaryQuery } =
+    useExecutiveQueries(autoRefresh);
   const { defaultCurrency } = useCurrency();
 
   // Data Queries
-  const {
-    data: dashboardData,
-    isLoading: dashboardLoading,
-    refetch: refetchDashboard,
-  } = useQuery({
-    queryKey: ["executiveDashboard"],
-    queryFn: financialAnalyticsApi.getExecutiveDashboard,
-    refetchInterval: autoRefresh ? refreshInterval : false,
-    staleTime: 2 * 60 * 1000,
-  });
+  const dashboardData = dashboardQuery.data;
+  const dashboardLoading = dashboardQuery.isLoading;
+  const refetchDashboard = dashboardQuery.refetch;
 
-  const {
-    data: businessIntelligence,
-    isLoading: biLoading,
-    refetch: refetchBI,
-  } = useQuery({
-    queryKey: ["executiveBusinessIntelligence"],
-    queryFn: executiveAnalyticsApi.getBusinessIntelligence,
-    refetchInterval: autoRefresh ? refreshInterval : false,
-    staleTime: 2 * 60 * 1000,
-  });
+  const businessIntelligence = intelligenceQuery.data;
+  const biLoading = intelligenceQuery.isLoading;
+  const refetchBI = intelligenceQuery.refetch;
 
-  const { data: targetsSummary, isLoading: targetsLoading } = useQuery({
-    queryKey: ["targetsSummary"],
-    queryFn: wasteTargetsApi.getTargetsSummary,
-    refetchInterval: autoRefresh ? refreshInterval : false,
-  });
+  const targetsSummary = targetsSummaryQuery.data;
+  const targetsLoading = targetsSummaryQuery.isLoading;
 
   const handleManualRefresh = () => {
     Promise.all([refetchDashboard(), refetchBI()]).then(() => {
@@ -87,25 +69,10 @@ export default function ExecutiveDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-32" />
-            <Skeleton className="h-10 w-24" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-40" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Spinner className="h-12 w-12 mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading executive dashboard...</p>
         </div>
       </div>
     );

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
+import { useSessionData } from "@/contexts/SessionContext";
 import { apiService } from "@/services/api";
 import { toast } from "sonner";
 import type { CreateUserData, User as BackendUser } from "@/types";
@@ -46,7 +46,7 @@ interface CurrentUser {
 }
 
 export default function UsersPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useSessionData();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [users, setUsers] = useState<BackendUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,8 +74,6 @@ export default function UsersPage() {
     let mounted = true;
 
     const init = async () => {
-      if (status === "loading") return;
-
       if (!isAdmin) {
         if (mounted) setLoading(false);
         return;

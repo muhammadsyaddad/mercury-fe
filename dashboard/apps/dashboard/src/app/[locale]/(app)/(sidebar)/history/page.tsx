@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { apiService } from "@/services/api";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
 import { Button } from "@vision_dashboard/ui/button";
@@ -10,7 +11,7 @@ import { Input } from "@vision_dashboard/ui/input";
 import { Label } from "@vision_dashboard/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@vision_dashboard/ui/select";
 import { Switch } from "@vision_dashboard/ui/switch";
-import { Skeleton } from "@vision_dashboard/ui/skeleton";
+import { Spinner } from "@vision_dashboard/ui/spinner";
 import { ScrollArea } from "@vision_dashboard/ui/scroll-area";
 import {
   Dialog,
@@ -33,8 +34,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiService } from "@/services/api";
 import { getDisplayValues } from "@/utils/detectionDisplay";
+import { useHistoryQueries } from "@/lib/history-queries";
 import { DetectionImage } from "@/components/dashboard/DetectionImage";
 import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -118,33 +119,12 @@ export default function HistoryPage() {
   const canDeleteDetections = hasAnyRole([UserRole.ADMIN]);
   const canExportData = true; // All logged-in users can export
 
-  // Fetch cameras
-  const { data: cameras = [] } = useQuery({
-    queryKey: ["cameras"],
-    queryFn: () => apiService.getCameras(),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { camerasQuery, detectionsQuery } = useHistoryQueries(filters);
 
-  // Fetch detections with filters
-  const {
-    data: paginatedData,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["detections", filters],
-    queryFn: () =>
-      apiService.getDetections({
-        page: filters.page,
-        page_size: filters.page_size,
-        camera_id: filters.camera_id ? Number.parseInt(filters.camera_id) : undefined,
-        category: filters.category || undefined,
-        meal_period: filters.meal_period || undefined,
-        start_date: filters.start_date || undefined,
-        end_date: filters.end_date ? `${filters.end_date}T23:59:59` : undefined,
-        include_no_waste: filters.include_no_waste,
-      }),
-    staleTime: 30 * 1000,
-  });
+  const cameras = camerasQuery.data ?? [];
+  const paginatedData = detectionsQuery.data;
+  const isLoading = detectionsQuery.isLoading;
+  const refetch = detectionsQuery.refetch;
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
@@ -431,10 +411,11 @@ export default function HistoryPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} className="h-20 w-full" />
-              ))}
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <Spinner className="h-12 w-12 mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading detections...</p>
+              </div>
             </div>
           ) : !paginatedData || paginatedData.items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">

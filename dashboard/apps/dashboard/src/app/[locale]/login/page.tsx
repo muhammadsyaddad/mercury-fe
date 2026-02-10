@@ -1,11 +1,12 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useSessionData } from "@/contexts/SessionContext";
 
 export default function LoginPage() {
-  const { status } = useSession();
+  const { status } = useSessionData();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

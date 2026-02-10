@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSessionData } from "@/contexts/SessionContext";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
 import { Button } from "@vision_dashboard/ui/button";
@@ -11,7 +11,7 @@ import { Input } from "@vision_dashboard/ui/input";
 import { Label } from "@vision_dashboard/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@vision_dashboard/ui/select";
 import { Switch } from "@vision_dashboard/ui/switch";
-import { Skeleton } from "@vision_dashboard/ui/skeleton";
+import { Spinner } from "@vision_dashboard/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +37,6 @@ import {
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
 import { trayService } from "@/services/trayService";
-import { useAuth } from "@/contexts/AuthContext";
 import type { Camera, Tray } from "@/types";
 import { UserRole } from "@/types";
 import { hasGroup } from "@/lib/helper";
@@ -79,7 +78,7 @@ const getDefaultRTSPPath = (cameraType: string) => {
 };
 
 export default function CamerasPage() {
-  const {data: session} = useSession()
+  const { session } = useSessionData();
   const queryClient = useQueryClient();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -227,12 +226,10 @@ export default function CamerasPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-6">
-        <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-64" />
-          ))}
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Spinner className="h-12 w-12 mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading cameras...</p>
         </div>
       </div>
     );
