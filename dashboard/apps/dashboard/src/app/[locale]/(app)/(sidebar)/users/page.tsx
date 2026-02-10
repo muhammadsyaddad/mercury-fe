@@ -84,23 +84,30 @@ export default function UsersPage() {
       setLoading(true);
 
       try {
-        const me = await apiService.getCurrentUser();
-        if (mounted) {
-          setCurrentUser({
-            id: (me as any).id,
-            email: (me as any).email,
-            name: (me as any).full_name || (me as any).name || (me as any).username,
-          });
-        }
-      } catch {
-        if (mounted) setCurrentUser(null);
-      }
+        const [meResult, usersResult] = await Promise.allSettled([
+          apiService.getCurrentUser(),
+          apiService.getUsers(),
+        ]);
 
-      try {
-        const data = await apiService.getUsers();
-        if (mounted) setUsers(data);
-      } catch {
-        toast.error("Failed to load users");
+        if (meResult.status === "fulfilled") {
+          const me = meResult.value;
+          if (mounted) {
+            setCurrentUser({
+              id: (me as any).id,
+              email: (me as any).email,
+              name:
+                (me as any).full_name || (me as any).name || (me as any).username,
+            });
+          }
+        } else if (mounted) {
+          setCurrentUser(null);
+        }
+
+        if (usersResult.status === "fulfilled") {
+          if (mounted) setUsers(usersResult.value);
+        } else {
+          toast.error("Failed to load users");
+        }
       } finally {
         if (mounted) setLoading(false);
       }

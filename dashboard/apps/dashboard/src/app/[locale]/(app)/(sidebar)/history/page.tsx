@@ -35,7 +35,8 @@ import {
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
 import { getDisplayValues } from "@/utils/detectionDisplay";
-import { DetectionImage, DetectionDetailsModal } from "@/components/dashboard";
+import { DetectionImage } from "@/components/dashboard/DetectionImage";
+import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
 import type { Detection, Camera, FoodCategory, MealPeriod } from "@/types";

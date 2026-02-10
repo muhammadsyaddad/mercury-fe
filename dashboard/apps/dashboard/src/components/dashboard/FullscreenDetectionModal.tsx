@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@vision_dashboard/ui/cn";
+import Image from "next/image";
 import type { Detection } from "@/types";
 import { FoodCategory, ReviewStatus } from "@/types";
 import { apiService } from "@/services/api";
@@ -151,7 +152,57 @@ export function FullscreenDetectionModal({
   onAction,
 }: FullscreenDetectionModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  const handleAction = useCallback(
+    async (action: "accept" | "review" | "cancel") => {
+      if (!detection) return;
+      setIsProcessing(true);
+      try {
+        let reviewStatus: ReviewStatus;
+        let reviewNotes: string;
+        switch (action) {
+          case "accept":
+            reviewStatus = ReviewStatus.DETECTION_OK;
+            reviewNotes = "Detection automatically approved via SSE popup";
+            break;
+          case "review":
+            reviewStatus = ReviewStatus.NEED_REVISION;
+            reviewNotes = "Detection marked for review via SSE popup";
+            break;
+          case "cancel":
+            reviewStatus = ReviewStatus.DETECTION_REJECTED;
+            reviewNotes = "Detection rejected via SSE popup";
+            break;
+        }
+
+        await apiService.reviewDetection(detection.id, {
+          review_status: reviewStatus,
+          review_notes: reviewNotes,
+        });
+
+        const actionText =
+          action === "accept"
+            ? "approved"
+            : action === "review"
+              ? "marked for review"
+              : "cancelled";
+        toast.success(`Detection ${actionText} successfully`);
+        onAction(detection.id, action);
+        onClose();
+      } catch {
+        const actionText =
+          action === "accept"
+            ? "approve"
+            : action === "review"
+              ? "mark for review"
+              : "cancel";
+        toast.error(`Failed to ${actionText} detection`);
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [detection, onAction, onClose]
+  );
 
   // Escape to close + body scroll lock
   useEffect(() => {
@@ -174,8 +225,7 @@ export function FullscreenDetectionModal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "unset";
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, onClose, detection, isProcessing]);
+  }, [isOpen, onClose, detection, isProcessing, handleAction]);
 
   // Auto-close logic
   useEffect(() => {
@@ -216,55 +266,7 @@ export function FullscreenDetectionModal({
   const itemName = getItemName(detection);
   const processingStatus = getProcessingStatus(detection);
   const statusInfo = getStatusInfo(processingStatus);
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  const handleAction = async (action: "accept" | "review" | "cancel") => {
-    if (!detection) return;
-    setIsProcessing(true);
-    try {
-      let reviewStatus: ReviewStatus;
-      let reviewNotes: string;
-      switch (action) {
-        case "accept":
-          reviewStatus = ReviewStatus.DETECTION_OK;
-          reviewNotes = "Detection automatically approved via SSE popup";
-          break;
-        case "review":
-          reviewStatus = ReviewStatus.NEED_REVISION;
-          reviewNotes = "Detection marked for review via SSE popup";
-          break;
-        case "cancel":
-          reviewStatus = ReviewStatus.DETECTION_REJECTED;
-          reviewNotes = "Detection rejected via SSE popup";
-          break;
-      }
-
-      await apiService.reviewDetection(detection.id, {
-        review_status: reviewStatus,
-        review_notes: reviewNotes,
-      });
-
-      const actionText =
-        action === "accept"
-          ? "approved"
-          : action === "review"
-          ? "marked for review"
-          : "cancelled";
-      toast.success(`Detection ${actionText} successfully`);
-      onAction(detection.id, action);
-      onClose();
-    } catch {
-      const actionText =
-        action === "accept"
-          ? "approve"
-          : action === "review"
-          ? "mark for review"
-          : "cancel";
-      toast.error(`Failed to ${actionText} detection`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const actionsEnabled =
     processingStatus === "complete" || processingStatus === "ai_error";
@@ -356,9 +358,8 @@ export function FullscreenDetectionModal({
               {/* Image panel */}
               <div className="col-span-5 xl:col-span-5 min-h-[240px] space-y-3">
                 <div className="relative w-full h-[36vh] md:h-[40vh] xl:h-[48vh] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-black to-zinc-900 border border-white/10">
-                  <img
-                    ref={imgRef}
-                    src={`${baseUrl}/static/${detection.image_path ?? ""}`}
+                  <Image
+                    src={apiService.getImageUrl(detection.image_path ?? "")}
                     alt="Detection"
                     className="absolute inset-0 w-full h-full object-contain select-none"
                     onError={(e) => {
@@ -366,6 +367,9 @@ export function FullscreenDetectionModal({
                       target.style.display = "none";
                     }}
                     draggable={false}
+                    fill
+                    sizes="(min-width: 1536px) 75vw, (min-width: 1024px) 66vw, 100vw"
+                    unoptimized
                   />
                   {/* Fallback icon */}
                   <div
@@ -405,14 +409,18 @@ export function FullscreenDetectionModal({
                           </span>
                         </div>
                         <div className="relative w-full h-16 rounded-lg overflow-hidden bg-gradient-to-br from-blue-900/20 to-blue-800/20">
-                          <img
-                            src={`${baseUrl}/static/${detection.initial_ocr_path}`}
+                          <Image
+                            src={apiService.getImageUrl(detection.initial_ocr_path)}
                             alt="Initial OCR"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.currentTarget as HTMLImageElement;
                               target.style.display = "none";
                             }}
+                            width={160}
+                            height={64}
+                            sizes="(min-width: 1024px) 12vw, 25vw"
+                            unoptimized
                           />
                         </div>
                       </div>
@@ -427,14 +435,18 @@ export function FullscreenDetectionModal({
                           </span>
                         </div>
                         <div className="relative w-full h-16 rounded-lg overflow-hidden bg-gradient-to-br from-green-900/20 to-green-800/20">
-                          <img
-                            src={`${baseUrl}/static/${detection.final_ocr_path}`}
+                          <Image
+                            src={apiService.getImageUrl(detection.final_ocr_path)}
                             alt="Final OCR"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.currentTarget as HTMLImageElement;
                               target.style.display = "none";
                             }}
+                            width={160}
+                            height={64}
+                            sizes="(min-width: 1024px) 12vw, 25vw"
+                            unoptimized
                           />
                         </div>
                       </div>

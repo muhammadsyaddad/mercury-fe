@@ -31,7 +31,9 @@ import { financialAnalyticsApi, wasteTargetsApi } from "@/services/financialApi"
 import { executiveAnalyticsApi } from "@/services/executiveAnalyticsApi";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
-import { AnalyticsChart, KPICard, ProgressIndicator } from "@/components/dashboard";
+import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
+import { KPICard } from "@/components/dashboard/KPICard";
+import { ProgressIndicator } from "@/components/dashboard/ProgressIndicator";
 
 type DashboardTab = "overview" | "analytics" | "operations";
 
@@ -76,9 +78,9 @@ export default function ExecutiveDashboardPage() {
   });
 
   const handleManualRefresh = () => {
-    refetchDashboard();
-    refetchBI();
-    toast.success("Dashboard refreshed");
+    Promise.all([refetchDashboard(), refetchBI()]).then(() => {
+      toast.success("Dashboard refreshed");
+    });
   };
 
   const isLoading = dashboardLoading || biLoading || targetsLoading;

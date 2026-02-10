@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { apiService } from "@/services/api";
 import { cn } from "@vision_dashboard/ui/cn";
 import { Spinner } from "@vision_dashboard/ui/spinner";
@@ -145,12 +146,16 @@ export function DetectionImage({
   }
 
   return (
-    <img
+    <Image
       src={imageUrl}
       alt={alt}
       className={className}
       onError={handleImageError}
       loading="lazy"
+      width={400}
+      height={300}
+      sizes="100vw"
+      unoptimized
     />
   );
 }

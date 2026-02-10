@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@vision_dashboard/ui/select";
 import { Spinner } from "@vision_dashboard/ui/spinner";
+import Image from "next/image";
 import { cn } from "@vision_dashboard/ui/cn";
 import { toast } from "sonner";
 import {
@@ -78,29 +79,30 @@ export function DetectionDetailsModal({
     const loadData = async () => {
       if (!isOpen) return;
 
-      // Load trays
       setLoadingTrays(true);
-      try {
-        const trays = await trayService.getTrays(true);
-        setAvailableTrays(trays);
-      } catch (error) {
-        console.error("Failed to load trays:", error);
+      setLoadingMenuItems(true);
+
+      const [traysResult, menuItemsResult] = await Promise.allSettled([
+        trayService.getTrays(true),
+        apiService.getActiveMenuItems(),
+      ]);
+
+      if (traysResult.status === "fulfilled") {
+        setAvailableTrays(traysResult.value);
+      } else {
+        console.error("Failed to load trays:", traysResult.reason);
         toast.error("Failed to load available trays");
-      } finally {
-        setLoadingTrays(false);
       }
 
-      // Load menu items
-      setLoadingMenuItems(true);
-      try {
-        const menuItems = await apiService.getActiveMenuItems();
-        setAvailableMenuItems(menuItems);
-      } catch (error) {
-        console.error("Failed to load menu items:", error);
+      if (menuItemsResult.status === "fulfilled") {
+        setAvailableMenuItems(menuItemsResult.value);
+      } else {
+        console.error("Failed to load menu items:", menuItemsResult.reason);
         toast.error("Failed to load menu items");
-      } finally {
-        setLoadingMenuItems(false);
       }
+
+      setLoadingTrays(false);
+      setLoadingMenuItems(false);
     };
 
     loadData();
@@ -128,15 +130,11 @@ export function DetectionDetailsModal({
 
   if (!detection) return null;
 
-  const getImageUrl = (imagePath: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  const missingImageDataUri =
+    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlhOWE5YSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGltYWdlIGF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=";
 
-    if (imagePath) {
-      return `${baseUrl}/static/${imagePath}`;
-    }
-
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlhOWE5YSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGltYWdlIGF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=';
-  };
+  const getImageUrl = (imagePath?: string) =>
+    imagePath ? apiService.getImageUrl(imagePath) : missingImageDataUri;
 
   const displayValues = getDisplayValues(detection);
 
@@ -704,15 +702,19 @@ export function DetectionDetailsModal({
             <div>
               <h3 className="text-lg font-medium mb-3">Food Detection Image</h3>
               <div className="border-2 border-border rounded-lg overflow-hidden bg-muted">
-                <img
+                <Image
                   src={getImageUrl(detection.image_path)}
                   alt="Food detection"
                   className="w-full h-64 object-cover hover:scale-105 transition-transform duration-200"
                   onError={(e) => {
-                    const target = e.target as HTMLImageElement;
+                    const target = e.currentTarget as HTMLImageElement;
                     target.src =
-                      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlhOWE5YSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+';
+                      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlhOWE5YSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+";
                   }}
+                  width={400}
+                  height={256}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  unoptimized
                 />
               </div>
             </div>
@@ -725,14 +727,18 @@ export function DetectionDetailsModal({
                   <h4 className="text-sm font-medium mb-2">Before (Initial)</h4>
                   <div className="border rounded-lg overflow-hidden bg-blue-50 dark:bg-blue-950/30 aspect-square relative">
                     {detection.initial_ocr_path ? (
-                      <img
+                      <Image
                         src={getImageUrl(detection.initial_ocr_path)}
                         alt="Initial OCR scale reading"
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
+                          const target = e.currentTarget as HTMLImageElement;
                           target.style.display = "none";
                         }}
+                        width={200}
+                        height={200}
+                        sizes="(min-width: 1024px) 25vw, 50vw"
+                        unoptimized
                       />
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 p-2">
@@ -757,14 +763,18 @@ export function DetectionDetailsModal({
                   <h4 className="text-sm font-medium mb-2">After (Final)</h4>
                   <div className="border rounded-lg overflow-hidden bg-green-50 dark:bg-green-950/30 aspect-square relative">
                     {detection.final_ocr_path ? (
-                      <img
+                      <Image
                         src={getImageUrl(detection.final_ocr_path)}
                         alt="Final OCR scale reading"
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
+                          const target = e.currentTarget as HTMLImageElement;
                           target.style.display = "none";
                         }}
+                        width={200}
+                        height={200}
+                        sizes="(min-width: 1024px) 25vw, 50vw"
+                        unoptimized
                       />
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center text-green-600 dark:text-green-400 p-2">

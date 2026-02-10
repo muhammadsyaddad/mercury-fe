@@ -25,11 +25,9 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
 import { getTodayLocalDate } from "@/utils/dateUtils";
 import { getDisplayValues } from "@/utils/detectionDisplay";
-import {
-  AnalyticsChart,
-  DetectionImage,
-  DetectionDetailsModal,
-} from "@/components/dashboard";
+import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
+import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
+import { DetectionImage } from "@/components/dashboard/DetectionImage";
 import type { Detection, Camera} from "@/types";
 
 type AnalyticsTabType = "cost" | "items" | "weight" | "performance";
