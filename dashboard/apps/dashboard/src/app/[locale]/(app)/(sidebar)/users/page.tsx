@@ -245,10 +245,15 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">Manage system users and their roles</p>
+      <div className="flex justify-between items-center bg-gradient-to-r from-indigo-50 via-blue-50/80 to-violet-50/60 dark:from-indigo-950/40 dark:via-blue-950/30 dark:to-violet-950/20 rounded-xl p-6 border border-indigo-200/60 dark:border-indigo-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl flex items-center justify-center ring-1 ring-indigo-200 dark:ring-indigo-800">
+            <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">User Management</h1>
+            <p className="text-indigo-700/70 dark:text-indigo-300/70">Manage system users and their roles</p>
+          </div>
         </div>
         <Button onClick={() => setShowAddModal(true)} disabled={!isAdmin}>
           <Plus className="h-4 w-4 mr-2" />
@@ -256,21 +261,21 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="border-indigo-200/40 dark:border-indigo-800/30">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-gradient-to-r from-indigo-50/60 via-blue-50/40 to-transparent dark:from-indigo-950/20 dark:via-blue-950/10 dark:to-transparent border-b border-indigo-200/40 dark:border-indigo-800/30">
+                <TableHead className="text-indigo-900 dark:text-indigo-200">User</TableHead>
+                <TableHead className="text-indigo-900 dark:text-indigo-200">Role</TableHead>
+                <TableHead className="text-indigo-900 dark:text-indigo-200">Status</TableHead>
+                <TableHead className="text-indigo-900 dark:text-indigo-200">Created</TableHead>
+                <TableHead className="text-right text-indigo-900 dark:text-indigo-200">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
@@ -319,7 +324,12 @@ export default function UsersPage() {
               {users.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5}>
-                    <div className="py-8 text-center text-muted-foreground">No users found</div>
+                    <div className="py-8 text-center bg-gradient-to-br from-indigo-50/40 to-blue-50/20 dark:from-indigo-950/10 dark:to-blue-950/5 rounded-lg m-4">
+                      <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <p className="text-indigo-700/70 dark:text-indigo-300/70">No users found</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -335,10 +345,10 @@ export default function UsersPage() {
             (u) => String(u.role).toUpperCase() === roleStr.toUpperCase()
           ).length;
           return (
-            <Card key={roleStr}>
+            <Card key={roleStr} className="bg-indigo-50/40 dark:bg-indigo-950/15 border-indigo-100/60 dark:border-indigo-900/30">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-muted rounded-lg">{getRoleIcon(roleStr)}</div>
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">{getRoleIcon(roleStr)}</div>
                   <div>
                     <p className="text-sm text-muted-foreground capitalize">
                       {roleStr.toLowerCase()}s

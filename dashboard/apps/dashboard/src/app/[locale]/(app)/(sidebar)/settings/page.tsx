@@ -115,13 +115,13 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Settings className="h-6 w-6 text-primary" />
+      <div className="flex items-center gap-4 bg-gradient-to-r from-slate-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-950/40 dark:via-blue-950/30 dark:to-indigo-950/20 rounded-xl p-6 border border-slate-200/60 dark:border-slate-800/40">
+        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-900/40 rounded-xl flex items-center justify-center ring-1 ring-slate-200 dark:ring-slate-800">
+          <Settings className="h-6 w-6 text-slate-600 dark:text-slate-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">System Settings</h1>
-          <p className="text-muted-foreground">Configure system-wide settings and preferences</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">System Settings</h1>
+          <p className="text-slate-700/70 dark:text-slate-300/70">Configure system-wide settings and preferences</p>
         </div>
       </div>
 
@@ -198,40 +198,40 @@ export default function SettingsPage() {
       </Card>
 
       {/* Info Card */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+      <Card className="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900/20 dark:to-blue-900/20 border-slate-200 dark:border-slate-800">
         <CardHeader>
-          <CardTitle>How Currency Settings Work</CardTitle>
+          <CardTitle className="text-slate-900 dark:text-slate-100">How Currency Settings Work</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0 mt-0.5">
+            <div className="w-6 h-6 bg-slate-600 dark:bg-slate-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5">
               1
             </div>
             <div>
-              <h4 className="font-medium">Global Default</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium text-slate-900 dark:text-slate-100">Global Default</h4>
+              <p className="text-sm text-slate-700/70 dark:text-slate-300/70">
                 The selected currency becomes the system-wide default for all price displays and new price entries.
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0 mt-0.5">
+            <div className="w-6 h-6 bg-slate-600 dark:bg-slate-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5">
               2
             </div>
             <div>
-              <h4 className="font-medium">Existing Prices</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium text-slate-900 dark:text-slate-100">Existing Prices</h4>
+              <p className="text-sm text-slate-700/70 dark:text-slate-300/70">
                 Existing price entries maintain their original currency. The system will display them in their respective currencies.
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0 mt-0.5">
+            <div className="w-6 h-6 bg-slate-600 dark:bg-slate-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5">
               3
             </div>
             <div>
-              <h4 className="font-medium">New Entries</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium text-slate-900 dark:text-slate-100">New Entries</h4>
+              <p className="text-sm text-slate-700/70 dark:text-slate-300/70">
                 New food prices and calculations will use the default currency as the starting point.
               </p>
             </div>
@@ -252,8 +252,8 @@ export default function SettingsPage() {
                 key={currency.code}
                 className={`p-4 rounded-lg border-2 transition-colors ${
                   currency.code === currencySettings?.default_currency
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border bg-muted/50'
+                    ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/20'
+                    : 'border-border bg-muted/50 hover:bg-slate-50/80 dark:hover:bg-slate-950/20'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -265,8 +265,8 @@ export default function SettingsPage() {
                 </div>
                 {currency.code === currencySettings?.default_currency && (
                   <div className="mt-2 flex items-center gap-1">
-                    <Check className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-medium text-primary">Default</span>
+                    <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Default</span>
                   </div>
                 )}
               </div>

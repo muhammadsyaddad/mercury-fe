@@ -209,12 +209,17 @@ export default function WasteTargetsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Waste Reduction Targets</h1>
-          <p className="text-muted-foreground mt-1">
-            Set and track waste reduction goals to improve operational efficiency
-          </p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 via-yellow-50/80 to-orange-50/60 dark:from-amber-950/40 dark:via-yellow-950/30 dark:to-orange-950/20 rounded-xl p-6 border border-amber-200/60 dark:border-amber-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center ring-1 ring-amber-200 dark:ring-amber-800">
+            <Flag className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-100">Waste Reduction Targets</h1>
+            <p className="text-amber-700/70 dark:text-amber-300/70 mt-1">
+              Set and track waste reduction goals to improve operational efficiency
+            </p>
+          </div>
         </div>
         
         <Button onClick={() => openModal()}>
@@ -226,28 +231,56 @@ export default function WasteTargetsPage() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/60 dark:border-amber-800/40">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{summary.total_targets}</div>
-              <div className="text-sm text-muted-foreground">Total Targets</div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                  <Flag className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">{summary.total_targets}</div>
+                  <div className="text-sm text-amber-700/70 dark:text-amber-300/70">Total Targets</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-800/40">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">{summary.on_track_count}</div>
-              <div className="text-sm text-muted-foreground">On Track</div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{summary.on_track_count}</div>
+                  <div className="text-sm text-emerald-700/70 dark:text-emerald-300/70">On Track</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-yellow-50/60 dark:bg-yellow-950/20 border-yellow-200/60 dark:border-yellow-800/40">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600">{summary.warning_count}</div>
-              <div className="text-sm text-muted-foreground">Warning</div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.warning_count}</div>
+                  <div className="text-sm text-yellow-700/70 dark:text-yellow-300/70">Warning</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-rose-50/60 dark:bg-rose-950/20 border-rose-200/60 dark:border-rose-800/40">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-red-600">{summary.exceeded_count}</div>
-              <div className="text-sm text-muted-foreground">Exceeded</div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center">
+                  <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">{summary.exceeded_count}</div>
+                  <div className="text-sm text-rose-700/70 dark:text-rose-300/70">Exceeded</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -255,10 +288,12 @@ export default function WasteTargetsPage() {
 
       {/* Targets List */}
       {targets.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Flag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No Targets Set</h3>
-          <p className="text-muted-foreground mb-6">
+        <Card className="p-12 text-center bg-gradient-to-br from-amber-50/40 to-yellow-50/20 dark:from-amber-950/10 dark:to-yellow-950/5">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Flag className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2 text-amber-900 dark:text-amber-100">No Targets Set</h3>
+          <p className="text-amber-700/70 dark:text-amber-300/70 mb-6">
             Create your first waste reduction target to start tracking performance
           </p>
           <Button onClick={() => openModal()}>
@@ -272,9 +307,9 @@ export default function WasteTargetsPage() {
             const StatusIcon = statusConfig.icon;
 
             return (
-              <Card key={target.id}>
+              <Card key={target.id} className="border-l-4 border-l-amber-300 dark:border-l-amber-700 hover:shadow-md transition-shadow">
                 {/* Header */}
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-4 bg-gradient-to-r from-amber-50/40 to-transparent dark:from-amber-950/10 dark:to-transparent">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

@@ -174,12 +174,17 @@ export default function RestaurantMetricsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Restaurant Metrics</h1>
-          <p className="text-muted-foreground mt-1">
-            Track daily occupancy, covers, and F&B revenue
-          </p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-violet-50 via-purple-50/80 to-fuchsia-50/60 dark:from-violet-950/40 dark:via-purple-950/30 dark:to-fuchsia-950/20 rounded-xl p-6 border border-violet-200/60 dark:border-violet-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/40 rounded-xl flex items-center justify-center ring-1 ring-violet-200 dark:ring-violet-800">
+            <BarChart3 className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-violet-900 dark:text-violet-100">Restaurant Metrics</h1>
+            <p className="text-violet-700/70 dark:text-violet-300/70 mt-1">
+              Track daily occupancy, covers, and F&B revenue
+            </p>
+          </div>
         </div>
 
         <Button onClick={() => openModal()}>
@@ -190,59 +195,69 @@ export default function RestaurantMetricsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="bg-violet-50/60 dark:bg-violet-950/20 border-violet-200/60 dark:border-violet-800/40">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Occupancy</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-violet-900 dark:text-violet-100">Average Occupancy</CardTitle>
+            <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{avgOccupancy}%</div>
-            <p className="text-xs text-muted-foreground">Based on {metrics.length} entries</p>
+            <div className="text-2xl font-bold text-violet-900 dark:text-violet-100">{avgOccupancy}%</div>
+            <p className="text-xs text-violet-700/70 dark:text-violet-300/70">Based on {metrics.length} entries</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-blue-50/60 dark:bg-blue-950/20 border-blue-200/60 dark:border-blue-800/40">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Covers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Total Covers</CardTitle>
+            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalCovers.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Across all entries</p>
+            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{totalCovers.toLocaleString()}</div>
+            <p className="text-xs text-blue-700/70 dark:text-blue-300/70">Across all entries</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-800/40">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-emerald-900 dark:text-emerald-100">Total Revenue</CardTitle>
+            <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
               {formatCurrency(totalRevenue, metrics[0]?.currency || defaultCurrency)}
             </div>
-            <p className="text-xs text-muted-foreground">F&B revenue total</p>
+            <p className="text-xs text-emerald-700/70 dark:text-emerald-300/70">F&B revenue total</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Metrics Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-violet-50/80 via-purple-50/60 to-fuchsia-50/40 dark:from-violet-950/30 dark:via-purple-950/20 dark:to-fuchsia-950/10 border-b border-violet-200/40 dark:border-violet-800/30">
           <div className="flex items-center gap-3">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
             <div>
-              <CardTitle>Daily Metrics</CardTitle>
-              <p className="text-sm text-muted-foreground">Restaurant performance by date</p>
+              <CardTitle className="text-violet-900 dark:text-violet-100">Daily Metrics</CardTitle>
+              <p className="text-sm text-violet-700/70 dark:text-violet-300/70">Restaurant performance by date</p>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {metrics.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Metrics Recorded</h3>
-              <p className="text-muted-foreground mb-4">Start tracking your daily restaurant metrics</p>
+            <div className="text-center py-12 bg-gradient-to-br from-violet-50/40 to-purple-50/20 dark:from-violet-950/10 dark:to-purple-950/5 rounded-lg">
+              <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-8 h-8 text-violet-600 dark:text-violet-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-violet-900 dark:text-violet-100">No Metrics Recorded</h3>
+              <p className="text-violet-700/70 dark:text-violet-300/70 mb-4">Start tracking your daily restaurant metrics</p>
               <Button onClick={() => openModal()}>
                 Add Daily Metrics
               </Button>

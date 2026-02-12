@@ -244,14 +244,14 @@ export default function PricingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <DollarSign className="h-6 w-6 text-primary" />
+      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-green-50/80 to-teal-50/60 dark:from-emerald-950/40 dark:via-green-950/30 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/60 dark:border-emerald-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center ring-1 ring-emerald-200 dark:ring-emerald-800">
+            <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Pricing Management</h1>
-            <p className="text-muted-foreground">Configure food waste pricing for accurate cost calculations</p>
+            <h1 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">Pricing Management</h1>
+            <p className="text-emerald-700/70 dark:text-emerald-300/70">Configure food waste pricing for accurate cost calculations</p>
           </div>
         </div>
         
@@ -283,8 +283,8 @@ export default function PricingPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Prices */}
-        <Card>
-          <CardHeader>
+        <Card className="border-blue-200/40 dark:border-blue-800/30">
+          <CardHeader className="bg-gradient-to-r from-blue-50/60 via-sky-50/40 to-transparent dark:from-blue-950/20 dark:via-sky-950/10 dark:to-transparent border-b border-blue-200/30 dark:border-blue-800/20">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                 <Tag className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -347,8 +347,8 @@ export default function PricingPage() {
         </Card>
 
         {/* Menu/Item-Specific Prices */}
-        <Card>
-          <CardHeader>
+        <Card className="border-green-200/40 dark:border-green-800/30">
+          <CardHeader className="bg-gradient-to-r from-green-50/60 via-emerald-50/40 to-transparent dark:from-green-950/20 dark:via-emerald-950/10 dark:to-transparent border-b border-green-200/30 dark:border-green-800/20">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
                 <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -418,36 +418,36 @@ export default function PricingPage() {
       </div>
 
       {/* How it Works */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+      <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800">
         <CardHeader>
-          <CardTitle>How Pricing Works</CardTitle>
+          <CardTitle className="text-emerald-900 dark:text-emerald-100">How Pricing Works</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg mx-auto mb-3">
+              <div className="w-12 h-12 bg-emerald-600 dark:bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-3">
                 1
               </div>
-              <h4 className="font-medium mb-2">Menu/Item-Specific First</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium mb-2 text-emerald-900 dark:text-emerald-100">Menu/Item-Specific First</h4>
+              <p className="text-sm text-emerald-700/70 dark:text-emerald-300/70">
                 System first looks for specific menu item pricing (e.g., &quot;nasi goreng&quot; = $5/kg)
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg mx-auto mb-3">
+              <div className="w-12 h-12 bg-emerald-600 dark:bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-3">
                 2
               </div>
-              <h4 className="font-medium mb-2">Category Fallback</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium mb-2 text-emerald-900 dark:text-emerald-100">Category Fallback</h4>
+              <p className="text-sm text-emerald-700/70 dark:text-emerald-300/70">
                 If no item price found, uses category pricing (e.g., &quot;fruits&quot; = $3/kg)
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg mx-auto mb-3">
+              <div className="w-12 h-12 bg-emerald-600 dark:bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-3">
                 3
               </div>
-              <h4 className="font-medium mb-2">Default Price</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-medium mb-2 text-emerald-900 dark:text-emerald-100">Default Price</h4>
+              <p className="text-sm text-emerald-700/70 dark:text-emerald-300/70">
                 If neither available, uses configurable default price ({defaultPriceSettings ? formatCurrency(defaultPriceSettings.default_price_per_kg, defaultPriceSettings.default_currency) : '$1.00'}/kg)
               </p>
             </div>

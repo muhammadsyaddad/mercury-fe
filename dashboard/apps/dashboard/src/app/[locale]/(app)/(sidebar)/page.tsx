@@ -220,12 +220,16 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <Card>
+      <Card className="bg-gradient-to-r from-emerald-50 via-teal-50/80 to-cyan-50/60 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-cyan-950/20 border-emerald-200/60 dark:border-emerald-800/40">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Food Waste Management</h1>
-              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+           <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center ring-1 ring-emerald-200 dark:ring-emerald-800">
+                <Scale className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">Food Waste Management</h1>
+                <div className="flex items-center gap-4 mt-2 text-sm text-emerald-700/70 dark:text-emerald-300/70">
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -234,6 +238,7 @@ export default function DashboardPage() {
                   <span>Live Data</span>
                 </div>
                 <span>{format(new Date(), "MMM dd, yyyy HH:mm")}</span>
+                </div>
               </div>
             </div>
 
@@ -257,9 +262,9 @@ export default function DashboardPage() {
       {/* Time Period Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Year Card */}
-        <Card>
+        <Card className="bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/60 dark:border-amber-800/40">
           <CardContent className="p-4 text-center">
-            <div className="text-xs text-muted-foreground font-medium mb-1">
+            <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold mb-1 uppercase tracking-wide">
               {new Date().getFullYear()}
             </div>
             <div className="text-lg font-bold mb-1">{yearlyData.weight.toFixed(1)}kg</div>
@@ -278,9 +283,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Month Card */}
-        <Card>
+        <Card className="bg-blue-50/60 dark:bg-blue-950/20 border-blue-200/60 dark:border-blue-800/40">
           <CardContent className="p-4 text-center">
-            <div className="text-xs text-muted-foreground font-medium mb-1">
+            <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold mb-1 uppercase tracking-wide">
               {format(now, "MMMM")}
             </div>
             <div className="text-lg font-bold mb-1">{monthlyData.weight.toFixed(1)}kg</div>
@@ -299,9 +304,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Week Card */}
-        <Card>
+        <Card className="bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-800/40">
           <CardContent className="p-4 text-center">
-            <div className="text-xs text-muted-foreground font-medium mb-1">Last 7 days</div>
+            <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-1 uppercase tracking-wide">Last 7 days</div>
             <div className="text-lg font-bold mb-1">{weeklyData.weight.toFixed(1)}kg</div>
             <div className="text-sm font-semibold text-red-600">
               {formatCurrency(weeklyData.cost, defaultCurrency)}
@@ -318,9 +323,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Today Card */}
-        <Card>
+        <Card className="bg-rose-50/60 dark:bg-rose-950/20 border-rose-200/60 dark:border-rose-800/40">
           <CardContent className="p-4 text-center">
-            <div className="text-xs text-muted-foreground font-medium mb-1">Today</div>
+            <div className="text-xs text-rose-600 dark:text-rose-400 font-semibold mb-1 uppercase tracking-wide">Today</div>
             <div className="text-lg font-bold mb-1">{(todayData.weight_kg || 0).toFixed(2)}kg</div>
             <div className="text-sm font-semibold text-red-600">
               {formatCurrency(todayData.total_cost || 0, defaultCurrency)}
@@ -449,11 +454,13 @@ export default function DashboardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
         {/* Live Detection Feed */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
+        <Card className="lg:col-span-3 border-emerald-200/40 dark:border-emerald-800/30">
+          <CardHeader className="bg-gradient-to-r from-emerald-50/60 to-teal-50/40 dark:from-emerald-950/20 dark:to-teal-950/10 rounded-t-lg">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
+                <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
+                  <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
                 Live Feed
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -475,7 +482,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={detection.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors cursor-pointer border-l-2 border-transparent hover:border-l-emerald-400"
                       onClick={() => openDetectionDetails(detection)}
                     >
                       <div className="flex items-center gap-3">
@@ -516,9 +523,9 @@ export default function DashboardPage() {
                   );
                 })}
                 {recentDetections.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Activity className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No recent detections</p>
+                  <div className="text-center py-8 bg-gradient-to-br from-emerald-50/40 to-teal-50/30 dark:from-emerald-950/10 dark:to-teal-950/10 rounded-lg">
+                    <Activity className="h-10 w-10 mx-auto mb-2 text-emerald-400/50" />
+                    <p className="text-sm text-muted-foreground">No recent detections</p>
                   </div>
                 )}
               </div>
@@ -754,10 +761,15 @@ export default function DashboardPage() {
       {/* System Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* System Status */}
-        <Card>
-          <CardHeader>
+        <Card className="border-teal-200/40 dark:border-teal-800/30">
+          <CardHeader className="bg-gradient-to-r from-teal-50/60 to-emerald-50/40 dark:from-teal-950/20 dark:to-emerald-950/10 rounded-t-lg">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">System Status</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2">
+                <div className="w-7 h-7 bg-teal-100 dark:bg-teal-900/40 rounded-lg flex items-center justify-center">
+                  <Activity className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                </div>
+                System Status
+              </CardTitle>
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
@@ -789,10 +801,12 @@ export default function DashboardPage() {
         </Card>
 
         {/* Camera Status */}
-        <Card>
-          <CardHeader>
+        <Card className="border-sky-200/40 dark:border-sky-800/30">
+          <CardHeader className="bg-gradient-to-r from-sky-50/60 to-cyan-50/40 dark:from-sky-950/20 dark:to-cyan-950/10 rounded-t-lg">
             <CardTitle className="text-base flex items-center gap-2">
-              <CameraIcon className="h-4 w-4" />
+              <div className="w-7 h-7 bg-sky-100 dark:bg-sky-900/40 rounded-lg flex items-center justify-center">
+                <CameraIcon className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+              </div>
               Camera Status
             </CardTitle>
           </CardHeader>
@@ -804,7 +818,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={camera.id}
-                      className="flex items-center justify-between p-2 bg-muted/50 rounded-lg"
+                      className="flex items-center justify-between p-2 bg-sky-50/40 dark:bg-sky-950/10 rounded-lg border border-sky-100/40 dark:border-sky-900/20"
                     >
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">

@@ -239,12 +239,17 @@ export default function ReviewedDetectionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Waste Review</h1>
-          <p className="text-muted-foreground mt-1">
-            View and manage reviewed food waste detection records
-          </p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-rose-50 via-pink-50/80 to-fuchsia-50/60 dark:from-rose-950/40 dark:via-pink-950/30 dark:to-fuchsia-950/20 rounded-xl p-6 border border-rose-200/60 dark:border-rose-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/40 rounded-xl flex items-center justify-center ring-1 ring-rose-200 dark:ring-rose-800">
+            <Search className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-rose-900 dark:text-rose-100">Waste Review</h1>
+            <p className="text-rose-700/70 dark:text-rose-300/70">
+              View and manage reviewed food waste detection records
+            </p>
+          </div>
         </div>
 
         {canExportData && (
@@ -257,10 +262,12 @@ export default function ReviewedDetectionsPage() {
 
       {/* Filters */}
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-rose-50/60 via-pink-50/40 to-transparent dark:from-rose-950/20 dark:via-pink-950/10 dark:to-transparent border-b border-rose-200/40 dark:border-rose-800/30 rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
+              <div className="w-8 h-8 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center">
+                <Filter className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              </div>
               Filters
             </CardTitle>
 
@@ -377,10 +384,12 @@ export default function ReviewedDetectionsPage() {
 
       {/* Results */}
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-rose-50/60 via-pink-50/40 to-transparent dark:from-rose-950/20 dark:via-pink-950/10 dark:to-transparent border-b border-rose-200/40 dark:border-rose-800/30 rounded-t-lg">
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5" />
+              <div className="w-8 h-8 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center">
+                <Search className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              </div>
               Waste Review {paginatedData && `(${paginatedData.total_count} total)`}
             </CardTitle>
             {paginatedData && paginatedData.total_pages > 1 && (
@@ -397,9 +406,13 @@ export default function ReviewedDetectionsPage() {
             </div>
           ) : !paginatedData || paginatedData.items.length === 0 ? (
             <div className="text-center py-16">
-              <div className="text-6xl mb-6">🔍</div>
-              <h3 className="text-xl font-semibold mb-3">No reviewed detections found</h3>
-              <p className="text-muted-foreground">Try adjusting your filters or check back later.</p>
+              <div className="mx-auto w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-2xl flex items-center justify-center mb-6">
+                <Search className="h-8 w-8 text-rose-400 dark:text-rose-500" />
+              </div>
+              <div className="bg-gradient-to-br from-rose-50/40 to-pink-50/20 dark:from-rose-950/10 dark:to-pink-950/5 rounded-xl p-6 inline-block">
+                <h3 className="text-xl font-semibold mb-3 text-rose-900 dark:text-rose-100">No reviewed detections found</h3>
+                <p className="text-rose-700/60 dark:text-rose-300/60">Try adjusting your filters or check back later.</p>
+              </div>
             </div>
           ) : (
             <>
@@ -410,7 +423,7 @@ export default function ReviewedDetectionsPage() {
                   return (
                     <div
                       key={detection.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer border"
+                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors cursor-pointer border border-transparent hover:border-rose-200/40 dark:hover:border-rose-800/30"
                       onClick={() => openDetectionDetails(detection)}
                     >
                       <div className="flex items-center gap-4">

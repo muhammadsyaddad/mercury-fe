@@ -144,10 +144,15 @@ export default function ExecutiveDashboardPage() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Executive Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Real-time food waste analytics and insights</p>
+      <div className="flex items-center justify-between flex-wrap gap-4 bg-gradient-to-r from-indigo-50 via-blue-50/80 to-violet-50/60 dark:from-indigo-950/40 dark:via-blue-950/30 dark:to-violet-950/20 rounded-xl p-6 border border-indigo-200/60 dark:border-indigo-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl flex items-center justify-center ring-1 ring-indigo-200 dark:ring-indigo-800">
+            <BarChart3 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-indigo-900 dark:text-indigo-100">Executive Dashboard</h1>
+            <p className="text-indigo-700/70 dark:text-indigo-300/70 mt-1">Real-time food waste analytics and insights</p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -301,7 +306,7 @@ export default function ExecutiveDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-indigo-50/50 dark:bg-indigo-950/15 rounded-lg border border-indigo-100/40 dark:border-indigo-900/20">
                       <div>
                         <div className="text-sm text-muted-foreground">Budget vs Actual</div>
                         <div className="text-2xl font-bold">
@@ -325,7 +330,7 @@ export default function ExecutiveDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-indigo-50/50 dark:bg-indigo-950/15 rounded-lg border border-indigo-100/40 dark:border-indigo-900/20">
                       <div>
                         <div className="text-sm text-muted-foreground">YoY Change</div>
                         <div className="text-2xl font-bold">
@@ -349,7 +354,7 @@ export default function ExecutiveDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-indigo-50/50 dark:bg-indigo-950/15 rounded-lg border border-indigo-100/40 dark:border-indigo-900/20">
                       <div>
                         <div className="text-sm text-muted-foreground">Projected Annual Cost</div>
                         <div className="text-2xl font-bold">
@@ -469,9 +474,11 @@ export default function ExecutiveDashboardPage() {
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
-          <Card>
+          <Card className="bg-gradient-to-br from-indigo-50/40 to-blue-50/20 dark:from-indigo-950/15 dark:to-blue-950/10 border-indigo-200/30 dark:border-indigo-800/20">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <BarChart3 className="h-16 w-16 text-muted-foreground/50 mb-4" />
+              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-4">
+                <BarChart3 className="h-8 w-8 text-indigo-500 dark:text-indigo-400" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Advanced Analytics</h3>
               <p className="text-muted-foreground">Detailed analytical views coming soon</p>
             </CardContent>
@@ -479,9 +486,11 @@ export default function ExecutiveDashboardPage() {
         </TabsContent>
 
         <TabsContent value="operations" className="mt-6">
-          <Card>
+          <Card className="bg-gradient-to-br from-indigo-50/40 to-violet-50/20 dark:from-indigo-950/15 dark:to-violet-950/10 border-indigo-200/30 dark:border-indigo-800/20">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <Activity className="h-16 w-16 text-muted-foreground/50 mb-4" />
+              <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-4">
+                <Activity className="h-8 w-8 text-violet-500 dark:text-violet-400" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Live Operations</h3>
               <p className="text-muted-foreground">Real-time operational monitoring coming soon</p>
             </CardContent>

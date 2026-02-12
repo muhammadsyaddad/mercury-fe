@@ -195,12 +195,17 @@ export default function TraysPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Tray Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage tray configurations for weight calculations
-          </p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-teal-50 via-cyan-50/80 to-emerald-50/60 dark:from-teal-950/40 dark:via-cyan-950/30 dark:to-emerald-950/20 rounded-xl p-6 border border-teal-200/60 dark:border-teal-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center ring-1 ring-teal-200 dark:ring-teal-800">
+            <ImageIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-teal-900 dark:text-teal-100">Tray Management</h1>
+            <p className="text-teal-700/70 dark:text-teal-300/70 mt-1">
+              Manage tray configurations for weight calculations
+            </p>
+          </div>
         </div>
         
         <Button onClick={() => openModal()}>
@@ -211,10 +216,12 @@ export default function TraysPage() {
 
       {/* Trays Grid */}
       {trays.length === 0 ? (
-        <Card className="p-12 text-center">
-          <ImageIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No Trays Found</h3>
-          <p className="text-muted-foreground mb-6">
+        <Card className="p-12 text-center bg-gradient-to-br from-teal-50/40 to-cyan-50/20 dark:from-teal-950/10 dark:to-cyan-950/5">
+          <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ImageIcon className="w-8 h-8 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2 text-teal-900 dark:text-teal-100">No Trays Found</h3>
+          <p className="text-teal-700/70 dark:text-teal-300/70 mb-6">
             Create your first tray to get started with weight calculations
           </p>
           <Button onClick={() => openModal()}>
@@ -224,7 +231,7 @@ export default function TraysPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trays.map((tray) => (
-            <Card key={tray.id}>
+            <Card key={tray.id} className="border-t-4 border-t-teal-300 dark:border-t-teal-700 hover:shadow-md transition-shadow">
               {/* Tray Image */}
               {tray.image_path && (
                 <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
@@ -266,7 +273,7 @@ export default function TraysPage() {
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shape:</span>
-                  <span className="font-medium">{getShapeLabel(tray.shape)}</span>
+                  <span className="font-medium bg-teal-50 dark:bg-teal-950/20 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-md text-xs">{getShapeLabel(tray.shape)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Weight:</span>

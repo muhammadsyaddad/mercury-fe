@@ -261,12 +261,17 @@ export default function HistoryPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <Card>
+      <Card className="bg-gradient-to-r from-amber-50 via-orange-50/80 to-yellow-50/60 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-yellow-950/20 border-amber-200/60 dark:border-amber-800/40">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Detection History</h1>
-              <p className="text-muted-foreground mt-1">View and manage food waste detection records</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center ring-1 ring-amber-200 dark:ring-amber-800">
+                <Clock className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-amber-900 dark:text-amber-100">Detection History</h1>
+                <p className="text-amber-700/70 dark:text-amber-300/70 mt-1">View and manage food waste detection records</p>
+              </div>
             </div>
             {canExportData && (
               <Button onClick={handleExport} className="gap-2">
@@ -279,11 +284,13 @@ export default function HistoryPage() {
       </Card>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
+      <Card className="border-amber-200/30 dark:border-amber-800/20">
+        <CardHeader className="bg-gradient-to-r from-amber-50/40 to-orange-50/20 dark:from-amber-950/10 dark:to-orange-950/5 rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+              <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                <Filter className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              </div>
               Filters
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -395,11 +402,13 @@ export default function HistoryPage() {
       </Card>
 
       {/* Results */}
-      <Card>
-        <CardHeader>
+      <Card className="border-amber-200/30 dark:border-amber-800/20">
+        <CardHeader className="bg-gradient-to-r from-amber-50/30 to-orange-50/15 dark:from-amber-950/10 dark:to-orange-950/5 rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
+              <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                <Search className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              </div>
               Detection Results {paginatedData && `(${paginatedData.total_count} total)`}
             </CardTitle>
             {paginatedData && paginatedData.total_pages > 1 && (
@@ -418,8 +427,10 @@ export default function HistoryPage() {
               </div>
             </div>
           ) : !paginatedData || paginatedData.items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Search className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <div className="flex flex-col items-center justify-center py-16 bg-gradient-to-br from-amber-50/40 to-orange-50/20 dark:from-amber-950/10 dark:to-orange-950/5 rounded-lg">
+              <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center mb-4">
+                <Search className="h-8 w-8 text-amber-500 dark:text-amber-400" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">No detections found</h3>
               <p className="text-muted-foreground">Try adjusting your filters or check back later.</p>
             </div>
@@ -433,7 +444,7 @@ export default function HistoryPage() {
                   return (
                     <div
                       key={detection.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors cursor-pointer border-l-2 border-transparent hover:border-l-amber-400"
                       onClick={() => openDetectionDetails(detection)}
                     >
                       <div className="flex items-center gap-4">

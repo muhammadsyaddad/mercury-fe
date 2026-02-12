@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@vision_dashboard/ui/select";
 import { Spinner } from "@vision_dashboard/ui/spinner";
-import { Plus, Pencil, Trash2, UtensilsCrossed, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, UtensilsCrossed, CheckCircle, XCircle, Tag } from 'lucide-react';
 
 interface MenuItemForm {
   name: string;
@@ -182,14 +182,14 @@ export default function MenuManagementPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <UtensilsCrossed className="h-6 w-6 text-primary" />
+      <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 via-amber-50/80 to-yellow-50/60 dark:from-orange-950/40 dark:via-amber-950/30 dark:to-yellow-950/20 rounded-xl p-6 border border-orange-200/60 dark:border-orange-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center ring-1 ring-orange-200 dark:ring-orange-800">
+            <UtensilsCrossed className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Menu Management</h1>
-            <p className="text-muted-foreground">Manage your restaurant's menu items for AI classification and pricing</p>
+            <h1 className="text-2xl font-bold text-orange-900 dark:text-orange-100">Menu Management</h1>
+            <p className="text-orange-700/70 dark:text-orange-300/70">Manage your restaurant's menu items for AI classification and pricing</p>
           </div>
         </div>
         <Button onClick={() => openModal()}>
@@ -200,32 +200,60 @@ export default function MenuManagementPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-orange-50/60 dark:bg-orange-950/20 border-orange-200/60 dark:border-orange-800/40">
           <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Total Items</div>
-            <div className="text-2xl font-bold">{menuItems.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Active</div>
-            <div className="text-2xl font-bold text-green-600">
-              {menuItems.filter((i: MenuItem) => i.is_active).length}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <UtensilsCrossed className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <div className="text-sm text-orange-700/70 dark:text-orange-300/70">Total Items</div>
+                <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{menuItems.length}</div>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-800/40">
           <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Inactive</div>
-            <div className="text-2xl font-bold text-muted-foreground">
-              {menuItems.filter((i: MenuItem) => !i.is_active).length}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-sm text-emerald-700/70 dark:text-emerald-300/70">Active</div>
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {menuItems.filter((i: MenuItem) => i.is_active).length}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-slate-50/60 dark:bg-slate-950/20 border-slate-200/60 dark:border-slate-800/40">
           <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Categories</div>
-            <div className="text-2xl font-bold text-primary">{Object.keys(itemsByCategory).length}</div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-slate-100 dark:bg-slate-900/30 rounded-lg flex items-center justify-center">
+                <XCircle className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div>
+                <div className="text-sm text-slate-700/70 dark:text-slate-300/70">Inactive</div>
+                <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">
+                  {menuItems.filter((i: MenuItem) => !i.is_active).length}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-violet-50/60 dark:bg-violet-950/20 border-violet-200/60 dark:border-violet-800/40">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+                <Tag className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div>
+                <div className="text-sm text-violet-700/70 dark:text-violet-300/70">Categories</div>
+                <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{Object.keys(itemsByCategory).length}</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -247,7 +275,7 @@ export default function MenuManagementPage() {
             </CardHeader>
             <CardContent className="divide-y">
               {items.map((item: MenuItem) => (
-                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between">
+                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between hover:bg-orange-50/30 dark:hover:bg-orange-950/10 -mx-2 px-2 rounded-lg transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">{item.name}</h3>
@@ -285,11 +313,13 @@ export default function MenuManagementPage() {
       </div>
 
       {menuItems.length === 0 && (
-        <Card className="py-16">
+        <Card className="py-16 bg-gradient-to-br from-orange-50/40 to-amber-50/20 dark:from-orange-950/10 dark:to-amber-950/5">
           <CardContent className="text-center">
-            <div className="text-6xl mb-4">🍽️</div>
-            <h3 className="text-xl font-semibold mb-2">No Menu Items</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first menu item</p>
+            <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <UtensilsCrossed className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-orange-900 dark:text-orange-100">No Menu Items</h3>
+            <p className="text-orange-700/70 dark:text-orange-300/70 mb-4">Get started by adding your first menu item</p>
             <Button onClick={() => openModal()}>
               <Plus className="h-4 w-4 mr-2" />
               Add Menu Item

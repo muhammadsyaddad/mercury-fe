@@ -122,17 +122,17 @@ export default function AccountPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header Card */}
-      <Card>
+      <Card className="bg-gradient-to-r from-purple-50 via-violet-50/80 to-fuchsia-50/60 dark:from-purple-950/40 dark:via-violet-950/30 dark:to-fuchsia-950/20 border-purple-200/60 dark:border-purple-800/40">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground text-2xl font-bold">
+            <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center ring-2 ring-purple-300 dark:ring-purple-700">
+              <span className="text-purple-700 dark:text-purple-300 text-2xl font-bold">
                 {user.full_name.charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{user.full_name}</h1>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">{user.full_name}</h1>
+              <p className="text-purple-700/70 dark:text-purple-300/70">{user.email}</p>
               <div className="flex items-center mt-2 gap-2">
                 <span>{getRoleIcon(user.role)}</span>
                 <Badge variant={getRoleVariant(user.role)}>
@@ -146,9 +146,11 @@ export default function AccountPage() {
 
       {/* Account Information */}
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-purple-50/60 via-violet-50/40 to-transparent dark:from-purple-950/20 dark:via-violet-950/10 dark:to-transparent border-b border-purple-200/40 dark:border-purple-800/30 rounded-t-lg">
           <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
+            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+              <User className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            </div>
             Account Information
           </CardTitle>
         </CardHeader>
@@ -197,12 +199,12 @@ export default function AccountPage() {
 
           <Separator className="my-6" />
 
-          <div className="p-4 bg-muted rounded-lg">
+          <div className="p-4 bg-purple-50/60 dark:bg-purple-950/20 rounded-lg border border-purple-200/40 dark:border-purple-800/30">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="w-4 h-4" />
-              <h3 className="font-medium">Role Permissions</h3>
+              <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <h3 className="font-medium text-purple-900 dark:text-purple-100">Role Permissions</h3>
             </div>
-            <p className="text-sm text-muted-foreground">{getRoleDescription(user.role)}</p>
+            <p className="text-sm text-purple-700/70 dark:text-purple-300/70">{getRoleDescription(user.role)}</p>
           </div>
         </CardContent>
       </Card>

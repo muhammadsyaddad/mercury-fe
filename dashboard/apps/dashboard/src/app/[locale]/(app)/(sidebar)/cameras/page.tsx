@@ -238,12 +238,17 @@ export default function CamerasPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <Card>
+      <Card className="bg-gradient-to-r from-sky-50 via-cyan-50/80 to-blue-50/60 dark:from-sky-950/40 dark:via-cyan-950/30 dark:to-blue-950/20 border-sky-200/60 dark:border-sky-800/40">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Camera Management</h1>
-              <p className="text-muted-foreground mt-1">Manage your IP cameras and monitoring</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-sky-100 dark:bg-sky-900/40 rounded-xl flex items-center justify-center ring-1 ring-sky-200 dark:ring-sky-800">
+                <CameraIcon className="h-6 w-6 text-sky-600 dark:text-sky-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-sky-900 dark:text-sky-100">Camera Management</h1>
+                <p className="text-sky-700/70 dark:text-sky-300/70 mt-1">Manage your IP cameras and monitoring</p>
+              </div>
             </div>
             {canManageCameras && (
               <Button onClick={() => setShowAddModal(true)} className="gap-2">
@@ -260,11 +265,11 @@ export default function CamerasPage() {
         {cameras.map((camera: Camera) => {
           const status = cameraStatuses[camera.id] || { status: "inactive" };
           return (
-            <Card key={camera.id} className="hover:shadow-lg transition-shadow">
+            <Card key={camera.id} className={cn("hover:shadow-lg transition-shadow border-l-4", status.status === "active" ? "border-l-emerald-400 dark:border-l-emerald-500" : "border-l-gray-300 dark:border-l-gray-600")}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", status.status === "active" ? "bg-sky-500" : "bg-gray-400 dark:bg-gray-600")}>
                       <CameraIcon className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -278,7 +283,7 @@ export default function CamerasPage() {
                   <Badge variant={getStatusBadgeVariant(status.status)}>{status.status}</Badge>
                 </div>
 
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2 mb-4">
+                <div className="bg-sky-50/50 dark:bg-sky-950/10 rounded-lg p-4 space-y-2 mb-4 border border-sky-100/40 dark:border-sky-900/20">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
@@ -339,9 +344,11 @@ export default function CamerasPage() {
       </div>
 
       {cameras.length === 0 && (
-        <Card>
+        <Card className="bg-gradient-to-br from-sky-50/60 to-cyan-50/40 dark:from-sky-950/20 dark:to-cyan-950/10 border-sky-200/40 dark:border-sky-800/30">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <CameraIcon className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <div className="w-16 h-16 bg-sky-100 dark:bg-sky-900/30 rounded-2xl flex items-center justify-center mb-4">
+              <CameraIcon className="h-8 w-8 text-sky-500 dark:text-sky-400" />
+            </div>
             <h3 className="text-xl font-semibold mb-2">No cameras configured</h3>
             <p className="text-muted-foreground mb-4">Add your first camera to start monitoring</p>
             {canManageCameras && (
