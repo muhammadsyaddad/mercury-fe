@@ -45,7 +45,7 @@ interface CreateRestaurantMetricsForm extends CreateRestaurantMetrics {
 export default function RestaurantMetricsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMetric, setEditingMetric] = useState<RestaurantMetrics | null>(null);
-  
+
   const queryClient = useQueryClient();
   const { defaultCurrency } = useCurrency();
 
@@ -136,7 +136,7 @@ export default function RestaurantMetricsPage() {
       fb_revenue: Number(data.fb_revenue),
       currency: data.currency
     };
-    
+
     if (editingMetric) {
       updateMutation.mutate({ id: editingMetric.id, data: cleanData });
     } else {
@@ -165,7 +165,7 @@ export default function RestaurantMetricsPage() {
   const metrics = metricsData?.items || [];
 
   // Calculate summary stats
-  const avgOccupancy = metrics.length > 0 
+  const avgOccupancy = metrics.length > 0
     ? (metrics.reduce((sum: number, m: RestaurantMetrics) => sum + m.occupancy_percentage, 0) / metrics.length).toFixed(1)
     : '0';
   const totalCovers = metrics.reduce((sum: number, m: RestaurantMetrics) => sum + m.number_of_covers, 0);
@@ -181,7 +181,7 @@ export default function RestaurantMetricsPage() {
             Track daily occupancy, covers, and F&B revenue
           </p>
         </div>
-        
+
         <Button onClick={() => openModal()}>
           <Plus className="w-4 h-4 mr-2" />
           Add Daily Metrics
@@ -330,7 +330,7 @@ export default function RestaurantMetricsPage() {
                 step="0.1"
                 min="0"
                 max="100"
-                {...register('occupancy_percentage', { 
+                {...register('occupancy_percentage', {
                   required: 'Occupancy percentage is required',
                   min: { value: 0, message: 'Occupancy must be at least 0%' },
                   max: { value: 100, message: 'Occupancy cannot exceed 100%' }
@@ -349,7 +349,7 @@ export default function RestaurantMetricsPage() {
                 id="number_of_covers"
                 type="number"
                 min="0"
-                {...register('number_of_covers', { 
+                {...register('number_of_covers', {
                   required: 'Number of covers is required',
                   min: { value: 0, message: 'Number of covers must be non-negative' }
                 })}
@@ -368,7 +368,7 @@ export default function RestaurantMetricsPage() {
                 type="number"
                 step="0.01"
                 min="0"
-                {...register('fb_revenue', { 
+                {...register('fb_revenue', {
                   required: 'F&B revenue is required',
                   min: { value: 0, message: 'Revenue must be non-negative' }
                 })}
@@ -411,7 +411,7 @@ export default function RestaurantMetricsPage() {
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 
+                {createMutation.isPending || updateMutation.isPending ? 'Saving...' :
                  editingMetric ? 'Update Metrics' : 'Create Metrics'}
               </Button>
             </DialogFooter>
