@@ -85,7 +85,7 @@ export default function CamerasPage() {
   const [editingCamera, setEditingCamera] = useState<Camera | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<Camera | null>(null);
 
-  const canManageCameras = hasGroup(session?.user?.groups ?? [], "engineer");
+  const canManageCameras = hasGroup(session?.user?.groups ?? [], "admin");
   console.log("Debug Condition:", {
       value: canManageCameras,
       type: typeof hasGroup,
