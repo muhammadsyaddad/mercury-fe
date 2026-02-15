@@ -3,7 +3,7 @@
 import { createI18nClient } from "next-international/client";
 
 // NOTE: Also update middleware.ts to support locale
-export const languages = ["en"];
+export const languages = ["id"];
 
 export const {
   useScopedI18n,
@@ -12,5 +12,5 @@ export const {
   useChangeLocale,
   useI18n,
 } = createI18nClient({
-  en: () => import("./en"),
+  id: () => import("./id"),
 });

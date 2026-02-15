@@ -24,8 +24,7 @@ export default {
     placeholder: "Select locale",
   },
   languages: {
-    en: "English",
-    sv: "Swedish",
+    id: "Bahasa Indonesia",
   },
   timezone: {
     title: "Time Zone",

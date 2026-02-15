@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const hasTriggeredSignIn = useRef(false);
 
-  const localeSegment = pathname.split("/")[1] || "en";
+  const localeSegment = pathname.split("/")[1] || "id";
   const defaultCallbackUrl = `/${localeSegment}`;
   const callbackUrl = searchParams.get("callbackUrl") || defaultCallbackUrl;
   const error = searchParams.get("error");
