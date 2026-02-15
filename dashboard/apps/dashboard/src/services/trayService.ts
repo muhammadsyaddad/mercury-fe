@@ -1,22 +1,7 @@
-import axios from 'axios';
+import { createApiClient } from './apiConfig';
 import type { Tray, CreateTrayData } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-
-const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
-});
-
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+const api = createApiClient();
 
 export const trayService = {
   async getTrays(activeOnly = true): Promise<Tray[]> {

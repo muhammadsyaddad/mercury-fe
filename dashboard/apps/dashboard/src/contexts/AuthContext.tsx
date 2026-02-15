@@ -1,17 +1,17 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import {
+  type ReactNode,
   createContext,
   useContext,
-  useState,
   useEffect,
-  type ReactNode,
+  useState,
 } from "react";
-import type { User, LoginCredentials } from "../types";
-import { UserRole } from "../types";
-import { apiService } from "../services/api";
 import { toast } from "sonner";
-import { signOut } from "next-auth/react";
+import { apiService } from "../services/api";
+import type { LoginCredentials, User } from "../types";
+import type { UserRole } from "../types";
 
 interface AuthContextType {
   user: User | null;
@@ -32,7 +32,9 @@ export const useAuth = (): AuthContextType => {
   // Add debug logging to help trace where SSR calls to useAuth originate.
   if (isServer) {
     // Minimal SSR-safe logs (won't expose sensitive data)
-    console.debug?.("[AuthContext] useAuth called during SSR - returning server stub");
+    console.debug?.(
+      "[AuthContext] useAuth called during SSR - returning server stub",
+    );
     console.trace?.("[AuthContext] SSR trace: useAuth called");
 
     return {
@@ -54,8 +56,12 @@ export const useAuth = (): AuthContextType => {
   if (context === undefined) {
     // If, on the client, the provider is missing, return a fallback stub
     // and warn so it doesn't hard crash the app. Include a stack trace to help debug.
-    console.warn("[AuthContext] useAuth must be used within an AuthProvider; returning fallback stub.");
-    console.trace?.("[AuthContext] Client trace: AuthProvider missing - useAuth called");
+    console.warn(
+      "[AuthContext] useAuth must be used within an AuthProvider; returning fallback stub.",
+    );
+    console.trace?.(
+      "[AuthContext] Client trace: AuthProvider missing - useAuth called",
+    );
 
     return {
       user: null,
@@ -83,9 +89,14 @@ interface AuthProviderProps {
   } | null;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUser }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({
+  children,
+  initialUser,
+}) => {
   // Convert server session user to client User type
-  const convertSessionUser = (sessionUser: NonNullable<AuthProviderProps['initialUser']>): User => ({
+  const convertSessionUser = (
+    sessionUser: NonNullable<AuthProviderProps["initialUser"]>,
+  ): User => ({
     id: Number(sessionUser.id) || 0,
     username: sessionUser.name,
     email: sessionUser.email,
@@ -97,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   });
 
   const [user, setUser] = useState<User | null>(
-    initialUser ? convertSessionUser(initialUser) : null
+    initialUser ? convertSessionUser(initialUser) : null,
   );
   const [loading, setLoading] = useState(!initialUser); // Don't show loading if we have initialUser
 
@@ -110,35 +121,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     }
 
     const initializeAuth = async () => {
-      console.debug?.("[AuthContext] initializeAuth - fetching current user via /api/auth/me");
+      console.debug?.(
+        "[AuthContext] initializeAuth - fetching current user via /api/auth/me",
+      );
 
       try {
         // Expect server to read zap_session cookie and return user JSON
-        const resp = await fetch('/api/auth/me');
+        const resp = await fetch("/api/auth/me");
         if (!resp.ok) {
-          console.debug?.('[AuthContext] /api/auth/me returned non-OK');
+          console.debug?.("[AuthContext] /api/auth/me returned non-OK");
           setUser(null);
         } else {
           const currentUser = await resp.json();
-          console.debug?.('[AuthContext] fetched current user', { id: currentUser?.id });
+          console.debug?.("[AuthContext] fetched current user", {
+            id: currentUser?.id,
+          });
           // Convert session user shape to internal User type
           setUser({
             id: Number(currentUser.id) || 0,
             username: currentUser.name,
             email: currentUser.email,
             full_name: currentUser.name,
-            role: (currentUser.role || 'worker').toLowerCase() as UserRole,
+            role: (currentUser.role || "worker").toLowerCase() as UserRole,
             is_active: true,
             created_at: new Date().toISOString(),
           });
         }
       } catch (err) {
-        console.warn?.('[AuthContext] Failed to fetch /api/auth/me', err);
+        console.warn?.("[AuthContext] Failed to fetch /api/auth/me", err);
         setUser(null);
       }
 
       setLoading(false);
-      console.debug?.('[AuthContext] initializeAuth complete');
+      console.debug?.("[AuthContext] initializeAuth complete");
     };
 
     initializeAuth();
@@ -146,7 +161,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
 
   const login = async (credentials: LoginCredentials) => {
     // Avoid logging sensitive fields; only emit non-sensitive identifier for trace.
-    console.debug?.("[AuthContext] login called for:", credentials?.username ?? "(no-username)");
+    console.debug?.(
+      "[AuthContext] login called for:",
+      credentials?.username ?? "(no-username)",
+    );
     try {
       const response = await apiService.login(credentials);
       const { access_token } = response;
@@ -157,7 +175,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
 
       // Get user info
       const currentUser = await apiService.getCurrentUser();
-      console.debug?.("[AuthContext] fetched current user", { id: currentUser?.id });
+      console.debug?.("[AuthContext] fetched current user", {
+        id: currentUser?.id,
+      });
       setUser(currentUser);
       localStorage.setItem("user", JSON.stringify(currentUser));
 
@@ -190,11 +210,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
 
   const isLoggedIn = !!user;
 
-  // Simple role check - Admin has higher level than Worker
-  const isAdmin = (): boolean => {
-    return user?.role === UserRole.ADMIN;
-  };
-
   const value: AuthContextType = {
     user,
     loading,
@@ -206,56 +221,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-// Higher-order component for role-based access control
-export const withAuth = <P extends object>(
-  Component: React.ComponentType<P>,
-  requiredRoles?: UserRole[],
-) => {
-  const WrappedComponent = (props: P) => {
-    const { user, loading, hasAnyRole } = useAuth();
-
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary" />
-        </div>
-      );
-    }
-
-    if (!user) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
-              Authentication Required
-            </h2>
-            <p className="text-muted-foreground">Please log in to access this page.</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (requiredRoles && !hasAnyRole(requiredRoles)) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
-              Access Denied
-            </h2>
-            <p className="text-muted-foreground">
-              You don&apos;t have permission to access this page.
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    return <Component {...props} />;
-  };
-
-  WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name || 'Component'})`;
-
-  return WrappedComponent;
 };

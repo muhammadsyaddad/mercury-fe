@@ -1,15 +1,4 @@
-// Get API base URL
-const getApiBaseUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) {
-    return envUrl;
-  }
-  // If empty, use current origin (handles HTTPS correctly)
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  return '';
-};
+import { getApiBaseUrl } from './apiConfig';
 
 class SSEService {
   private eventSource: EventSource | null = null;

@@ -22,6 +22,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiService } from '@/services/api';
 import { DetectionDetailsModal } from '@/components/dashboard/DetectionDetailsModal';
 import { getDisplayValues } from '@/utils/detectionDisplay';
+import { getCategoryIcon } from '@/utils/categoryUtils';
+import { formatWeight } from '@/utils/weightUtils';
 import type { Detection, Camera, PaginatedDetectionResponse } from '@/types';
 import { FoodCategory, UserRole, ReviewStatus } from '@/types';
 import { cn } from '@/lib/utils';
@@ -151,19 +153,6 @@ export default function ReviewedDetectionsPage() {
     document.body.removeChild(link);
   };
 
-  const getCategoryIcon = (category: FoodCategory) => {
-    const icons = {
-      [FoodCategory.PROTEIN]: '🥩',
-      [FoodCategory.CARBOHYDRATE]: '🍞',
-      [FoodCategory.VEGETABLES]: '🥬',
-      [FoodCategory.FRUITS]: '🍎',
-      [FoodCategory.PASTRY]: '🧁',
-      [FoodCategory.OTHERS]: '🍽️',
-      [FoodCategory.NO_WASTE]: '✅'
-    };
-    return icons[category] || '🍽️';
-  };
-
   const getCameraName = (cameraId: number) => {
     const camera = cameras.find(c => c.id === cameraId);
     return camera ? camera.name : `Camera ${cameraId}`;
@@ -227,13 +216,6 @@ export default function ReviewedDetectionsPage() {
   const handleReviewUpdate = (updatedDetection: Detection) => {
     setSelectedDetection(updatedDetection);
     loadDetections(); // Refresh the list to show updated review status
-  };
-
-  const formatWeight = (weight?: number) => {
-    if (weight === undefined || weight === null) {
-      return 'N/A';
-    }
-    return `${(weight / 1000).toFixed(2)}kg`;
   };
 
   return (

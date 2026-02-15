@@ -1,40 +1,6 @@
-import axios from 'axios';
+import { createApiClient } from './apiConfig';
 
-// Get API base URL
-const getApiBaseUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) {
-    return envUrl;
-  }
-  if (typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.host}`;
-  }
-  return '';
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
-// Create axios instance for financial API
-const financialClient = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request interceptor to add auth token
-financialClient.interceptors.request.use(
-  (config) => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+const financialClient = createApiClient();
 
 // Types for financial analytics
 export interface CostSummary {

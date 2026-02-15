@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { getApiBaseUrl } from '@/services/apiConfig';
 
 interface SSEEvent {
   type: string;
@@ -48,7 +49,7 @@ export const useSSE = (options: UseSSEOptions = {}) => {
         return;
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+      const baseUrl = getApiBaseUrl();
       const url = `${baseUrl}/api/v1/events/stream?token=${encodeURIComponent(token)}`;
       
       const eventSource = new EventSource(url);

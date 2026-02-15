@@ -10,7 +10,6 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
     "dev": "turbo dev --parallel",
-    "migrate": "bun --cwd packages/db migrate",
     "test": "turbo test --parallel",
     "start:dashboard": "turbo start --filter=@vision_dashboard/dashboard",
     "dev:dashboard": "turbo dev --filter=@vision_dashboard/dashboard",

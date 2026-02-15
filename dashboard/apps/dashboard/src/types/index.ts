@@ -186,6 +186,26 @@ export interface CreateUserData {
   role: UserRole;
 }
 
+export interface UpdateUserData {
+  username?: string;
+  email?: string;
+  full_name?: string;
+  password?: string;
+  role?: UserRole;
+  is_active?: boolean;
+}
+
+export interface ReviewDetectionData {
+  review_status: ReviewStatus;
+  review_notes?: string;
+  corrected_category?: FoodCategory;
+  corrected_initial_weight?: number;
+  corrected_final_weight?: number;
+  corrected_description?: string;
+  corrected_tray_id?: number;
+  corrected_menu_item_id?: number;
+}
+
 export interface Tray {
   id: number;
   name: string;
@@ -268,6 +288,19 @@ export interface MenuItem {
 export interface CreateMenuItemData {
   name: string;
   category: FoodCategory;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface CreateSystemSettingData {
+  setting_key: string;
+  setting_value: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateSystemSettingData {
+  setting_value?: string;
   description?: string;
   is_active?: boolean;
 }

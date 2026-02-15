@@ -29,16 +29,12 @@ import {
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
+import { formatCategoryName } from "@/utils/categoryUtils";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ProgressIndicator } from "@/components/dashboard/ProgressIndicator";
 
 type DashboardTab = "overview" | "analytics" | "operations";
-
-const formatCategoryName = (category: string): string => {
-  if (!category) return "Unknown";
-  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-};
 
 export default function ExecutiveDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");

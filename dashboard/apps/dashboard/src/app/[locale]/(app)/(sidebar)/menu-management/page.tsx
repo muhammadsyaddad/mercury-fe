@@ -30,6 +30,7 @@ import {
 } from "@vision_dashboard/ui/select";
 import { Spinner } from "@vision_dashboard/ui/spinner";
 import { Plus, Pencil, Trash2, UtensilsCrossed, CheckCircle, XCircle, Tag } from 'lucide-react';
+import { getCategoryIcon, getCategoryColorClass } from '@/utils/categoryUtils';
 
 interface MenuItemForm {
   name: string;
@@ -37,32 +38,6 @@ interface MenuItemForm {
   description?: string;
   is_active: boolean;
 }
-
-const getCategoryIcon = (category: FoodCategory) => {
-  const icons: Record<FoodCategory, string> = {
-    [FoodCategory.PROTEIN]: '🥩',
-    [FoodCategory.CARBOHYDRATE]: '🍞',
-    [FoodCategory.VEGETABLES]: '🥬',
-    [FoodCategory.FRUITS]: '🍎',
-    [FoodCategory.PASTRY]: '🧁',
-    [FoodCategory.OTHERS]: '🍽️',
-    [FoodCategory.NO_WASTE]: '✅',
-  };
-  return icons[category] || '🍽️';
-};
-
-const getCategoryColor = (category: FoodCategory) => {
-  const colors: Record<FoodCategory, string> = {
-    [FoodCategory.PROTEIN]: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200',
-    [FoodCategory.CARBOHYDRATE]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200',
-    [FoodCategory.VEGETABLES]: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200',
-    [FoodCategory.FRUITS]: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200',
-    [FoodCategory.PASTRY]: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
-    [FoodCategory.OTHERS]: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200',
-    [FoodCategory.NO_WASTE]: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
-  };
-  return colors[category] || 'bg-gray-100 text-gray-800';
-};
 
 export default function MenuManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -376,7 +351,7 @@ export default function MenuManagementPage() {
                 <p className="text-sm text-destructive">{errors.category.message}</p>
               )}
               {selectedCategory && (
-                <Badge className={getCategoryColor(selectedCategory)}>
+                <Badge className={getCategoryColorClass(selectedCategory)}>
                   {getCategoryIcon(selectedCategory)} {selectedCategory}
                 </Badge>
               )}

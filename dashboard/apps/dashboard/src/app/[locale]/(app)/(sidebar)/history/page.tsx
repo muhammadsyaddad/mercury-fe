@@ -35,6 +35,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getDisplayValues } from "@/utils/detectionDisplay";
+import { formatCategoryName } from "@/utils/categoryUtils";
+import { formatWeight } from "@/utils/weightUtils";
+import { getMealPeriodInfo } from "@/utils/mealPeriodUtils";
 import { useHistoryQueries } from "@/lib/history-queries";
 import { DetectionImage } from "@/components/dashboard/DetectionImage";
 import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
@@ -72,30 +75,6 @@ const FOOD_CATEGORIES = [
   "OTHERS",
   "NO_WASTE",
 ];
-
-const getMealPeriodInfo = (mealPeriod?: string) => {
-  switch (mealPeriod) {
-    case "BREAKFAST":
-      return { label: "Breakfast", variant: "secondary" as const };
-    case "LUNCH":
-      return { label: "Lunch", variant: "default" as const };
-    case "DINNER":
-      return { label: "Dinner", variant: "outline" as const };
-    default:
-      return { label: "Unknown", variant: "secondary" as const };
-  }
-};
-
-const formatCategoryName = (category: string): string => {
-  if (!category) return "Unknown";
-  if (category === "NO_WASTE") return "No Waste";
-  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-};
-
-const formatWeight = (weight?: number) => {
-  if (weight === undefined || weight === null) return "N/A";
-  return `${(weight / 1000).toFixed(2)}kg`;
-};
 
 export default function HistoryPage() {
   const { hasAnyRole } = useAuth();

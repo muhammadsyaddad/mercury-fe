@@ -20,6 +20,8 @@ import Image from "next/image";
 import type { Detection } from "@/types";
 import { FoodCategory, ReviewStatus } from "@/types";
 import { apiService } from "@/services/api";
+import { getCategoryIcon, getCategoryColor, formatCategoryName } from "@/utils/categoryUtils";
+import { formatWeight as formatWeightBase } from "@/utils/weightUtils";
 
 interface FullscreenDetectionModalProps {
   detection: Detection | null;
@@ -31,42 +33,8 @@ interface FullscreenDetectionModalProps {
   ) => void;
 }
 
-// Category helpers
-const getCategoryIcon = (category: FoodCategory | string) => {
-  const icons: Record<string, string> = {
-    [FoodCategory.PROTEIN]: "🥩",
-    [FoodCategory.CARBOHYDRATE]: "🍞",
-    [FoodCategory.VEGETABLES]: "🥬",
-    [FoodCategory.FRUITS]: "🍎",
-    [FoodCategory.PASTRY]: "🧁",
-    [FoodCategory.OTHERS]: "🍽️",
-    [FoodCategory.NO_WASTE]: "✅",
-  };
-  const key = typeof category === "string" ? category : String(category);
-  return icons[key] || "🍽️";
-};
-
-const getCategoryColor = (category: FoodCategory | string) => {
-  const colors: Record<string, string> = {
-    [FoodCategory.PROTEIN]: "#ef4444",
-    [FoodCategory.CARBOHYDRATE]: "#f59e0b",
-    [FoodCategory.VEGETABLES]: "#10b981",
-    [FoodCategory.FRUITS]: "#8b5cf6",
-    [FoodCategory.PASTRY]: "#ec4899",
-    [FoodCategory.OTHERS]: "#6b7280",
-    [FoodCategory.NO_WASTE]: "#9ca3af",
-  };
-  const key = typeof category === "string" ? category : String(category);
-  return colors[key] || "#6b7280";
-};
-
-const formatWeight = (weight?: number | null) =>
-  weight == null ? "N/A" : `${(weight / 1000).toFixed(3)}kg`;
-
-const categoryLabel = (category?: FoodCategory | string) => {
-  const key = typeof category === "string" ? category : String(category);
-  return key === "NO_WASTE" ? "No Waste" : key.toLowerCase();
-};
+// Weight formatting with 3 decimal places for this view
+const formatWeight = (weight?: number | null) => formatWeightBase(weight, 'kg', 3);
 
 const getItemName = (d: Detection | null) => {
   if (!d) return "";
@@ -330,7 +298,7 @@ export function FullscreenDetectionModal({
                   className="text-xs md:text-sm font-semibold px-2 py-1 rounded-md"
                   style={{ backgroundColor: color }}
                 >
-                  {categoryLabel(detection.category)}
+                  {formatCategoryName(detection.category)}
                 </span>
               </>
             )}
@@ -392,7 +360,7 @@ export function FullscreenDetectionModal({
                   >
                     <span className="text-xl leading-none">{icon}</span>
                     <span className="text-sm font-semibold capitalize">
-                      {categoryLabel(detection.category)}
+                      {formatCategoryName(detection.category)}
                     </span>
                   </div>
                 </div>
@@ -478,7 +446,7 @@ export function FullscreenDetectionModal({
                       >
                         <span className="text-xl leading-none">{icon}</span>
                         <span className="capitalize">
-                          {categoryLabel(detection.category)}
+                          {formatCategoryName(detection.category)}
                         </span>
                       </span>
                     ) : (

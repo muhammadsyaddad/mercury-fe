@@ -1,35 +1,16 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { toast } from 'sonner';
-
-/**
- * Resolve base URL for API calls.
- *
- * Priority:
- * 1. NEXT_PUBLIC_API_URL environment variable (useful for staging/production).
- * 2. If not set and we're in the browser, use window.location.origin (useful for local dev and relative deployments).
- * 3. Fallback to empty string to avoid invalid URL building on the server.
- *
- * Note: On the server (during SSR), `window` is undefined, so the function returns an empty string.
- *       The caller (ApiService) appends `/api/v1` to this base, so ensure you set NEXT_PUBLIC_API_URL
- *       when running server-side or in environments where origin cannot be derived from `window`.
- */
-const getApiBaseUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) {
-    return envUrl;
-  }
-  // If empty, use current origin (handles HTTPS correctly)
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  return '';
-};
-
-/**
- * Final resolved API base URL used for building absolute asset URLs.
- * Example: `${API_BASE_URL}/static/...`
- */
-const API_BASE_URL = getApiBaseUrl();
+import { API_BASE_URL } from './apiConfig';
+import type {
+  CreateUserData,
+  UpdateUserData,
+  CreateCameraData,
+  ROIConfig,
+  ReviewDetectionData,
+  CreateMenuItemData,
+  CreateSystemSettingData,
+  UpdateSystemSettingData,
+} from '@/types';
 
 class ApiService {
   private client: AxiosInstance;
@@ -111,7 +92,7 @@ class ApiService {
     return response.data;
   }
 
-  async register(userData: any) {
+  async register(userData: CreateUserData) {
     const response = await this.client.post('/auth/register', userData);
     return response.data;
   }
@@ -127,12 +108,12 @@ class ApiService {
     return response.data;
   }
 
-  async createUser(userData: any) {
+  async createUser(userData: CreateUserData) {
     const response = await this.client.post('/users', userData);
     return response.data;
   }
 
-  async updateUser(userId: number, userData: any) {
+  async updateUser(userId: number, userData: UpdateUserData) {
     const response = await this.client.put(`/users/${userId}`, userData);
     return response.data;
   }
@@ -153,12 +134,12 @@ class ApiService {
     return response.data;
   }
 
-  async createCamera(cameraData: any) {
+  async createCamera(cameraData: CreateCameraData) {
     const response = await this.client.post('/cameras', cameraData);
     return response.data;
   }
 
-  async updateCamera(cameraId: number, cameraData: any) {
+  async updateCamera(cameraId: number, cameraData: Partial<CreateCameraData>) {
     const response = await this.client.put(`/cameras/${cameraId}`, cameraData);
     return response.data;
   }
@@ -168,7 +149,7 @@ class ApiService {
     return response.data;
   }
 
-  async updateCameraROI(cameraId: number, roiConfig: any) {
+  async updateCameraROI(cameraId: number, roiConfig: ROIConfig) {
     const response = await this.client.post(`/cameras/${cameraId}/roi`, roiConfig);
     return response.data;
   }
@@ -199,7 +180,7 @@ class ApiService {
     return response.data;
   }
 
-  async reviewDetection(detectionId: number, reviewData: any) {
+  async reviewDetection(detectionId: number, reviewData: ReviewDetectionData) {
     const response = await this.client.put(`/detections/${detectionId}/review`, reviewData);
     return response.data;
   }
@@ -411,12 +392,12 @@ class ApiService {
     return response.data;
   }
 
-  async createMenuItem(data: any) {
+  async createMenuItem(data: CreateMenuItemData) {
     const response = await this.client.post('/menu-items', data);
     return response.data;
   }
 
-  async updateMenuItem(id: number, data: any) {
+  async updateMenuItem(id: number, data: Partial<CreateMenuItemData>) {
     const response = await this.client.put(`/menu-items/${id}`, data);
     return response.data;
   }
@@ -438,8 +419,8 @@ export const settingsApi = {
   updateCurrencySettings: (data: { default_currency: string }) => apiService.updateCurrencySettings(data),
   getSystemSettings: (params?: { skip?: number; limit?: number }) => apiService.getSystemSettings(params),
   getSystemSetting: (key: string) => apiService.getSystemSetting(key),
-  createSystemSetting: (data: any) => apiService.createSystemSetting(data),
-  updateSystemSetting: (key: string, data: any) => apiService.updateSystemSetting(key, data),
+  createSystemSetting: (data: CreateSystemSettingData) => apiService.createSystemSetting(data),
+  updateSystemSetting: (key: string, data: UpdateSystemSettingData) => apiService.updateSystemSetting(key, data),
   deleteSystemSetting: (key: string) => apiService.deleteSystemSetting(key),
 };
 export default apiService;

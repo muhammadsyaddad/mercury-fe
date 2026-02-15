@@ -1,70 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@vision_dashboard/ui/card";
 import { Badge } from "@vision_dashboard/ui/badge";
 import { Progress } from "@vision_dashboard/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@vision_dashboard/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@vision_dashboard/ui/select";
 import { Spinner } from "@vision_dashboard/ui/spinner";
 import { ScrollArea } from "@vision_dashboard/ui/scroll-area";
 import {
-  TrendingUp,
-  Camera as CameraIcon,
   Scale,
-  DollarSign,
-  BarChart3,
   Activity,
-  Utensils,
 } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { formatCurrency } from "@/utils/currency";
 import { getTodayLocalDate } from "@/utils/dateUtils";
 import { getDisplayValues } from "@/utils/detectionDisplay";
+import { getCategoryColor, formatCategoryName } from "@/utils/categoryUtils";
+import { getMealPeriodInfo } from "@/utils/mealPeriodUtils";
 import { useDashboardQueries } from "@/lib/dashboard-queries";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { DetectionDetailsModal } from "@/components/dashboard/DetectionDetailsModal";
 import { DetectionImage } from "@/components/dashboard/DetectionImage";
+import { RestaurantPerformanceCard } from "@/components/dashboard/RestaurantPerformanceCard";
+import { SystemStatusCard, CameraStatusCard } from "@/components/dashboard/SystemStatusCards";
 import type { Detection, Camera} from "@/types";
 
 type AnalyticsTabType = "cost" | "items" | "weight" | "performance";
-
-const getMealPeriodInfo = (mealPeriod?: string) => {
-  switch (mealPeriod) {
-    case "BREAKFAST":
-      return { label: "Breakfast", variant: "secondary" as const, icon: "sunrise" };
-    case "LUNCH":
-      return { label: "Lunch", variant: "default" as const, icon: "sun" };
-    case "DINNER":
-      return { label: "Dinner", variant: "outline" as const, icon: "moon" };
-    default:
-      return { label: "Unknown", variant: "secondary" as const, icon: "utensils" };
-  }
-};
-
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    PROTEIN: "#ef4444",
-    CARBOHYDRATE: "#f59e0b",
-    VEGETABLES: "#10b981",
-    FRUITS: "#8b5cf6",
-    PASTRY: "#ec4899",
-    OTHERS: "#6b7280",
-    NO_WASTE: "#9ca3af",
-  };
-  return colors[category] || "#6b7280";
-};
-
-const formatCategoryName = (category: string): string => {
-  if (!category || category.trim() === "") return "Unknown";
-  let categoryName = category;
-  if (categoryName.includes("FoodCategory.")) {
-    const parts = categoryName.split(".");
-    categoryName = (parts[1] ?? "").toLowerCase();
-  }
-  return categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
-};
 
 export default function DashboardPage() {
   const { defaultCurrency } = useCurrency();
@@ -74,8 +37,6 @@ export default function DashboardPage() {
   const [chartMealFilter, setChartMealFilter] = useState<string>("all");
   const [selectedDetection, setSelectedDetection] = useState<Detection | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [recentDetections, setRecentDetections] = useState<Detection[]>([]);
-  const [cameraStatuses, setCameraStatuses] = useState<Record<string, { status: string }>>({});
 
   const dashboardQueries = useDashboardQueries({
     selectedMealPeriod,
@@ -103,51 +64,14 @@ export default function DashboardPage() {
   const camerasLoading = camerasQuery.isLoading;
   const detectionsData = recentDetectionsQuery.data;
   const statusesData = cameraStatusesQuery.data;
+  const recentDetections = detectionsData?.items ?? [];
+  const cameraStatuses = statusesData ?? {} as Record<string, { status: string }>;
   const targetsSummary = targetsSummaryQuery.data;
   const financialTrends = financialTrendsQuery.data;
   const costWeightCombinedData = costWeightCombinedQuery.data;
   const categoryCosts = categoryCostsQuery.data;
   const restaurantPerformanceKPIs = restaurantPerformanceKPIsQuery.data;
   const restaurantPerformanceTrends = restaurantPerformanceTrendsQuery.data;
-
-  // Update recent detections when data changes
-  useEffect(() => {
-    if (detectionsData?.items) {
-      setRecentDetections(detectionsData.items);
-    }
-  }, [detectionsData]);
-
-  // Update camera statuses when data changes
-  useEffect(() => {
-    if (statusesData) {
-      setCameraStatuses(statusesData);
-    }
-  }, [statusesData]);
-
-  // Listen for SSE events
-  useEffect(() => {
-    const handleNewDetection = (event: CustomEvent<Detection>) => {
-      setRecentDetections((prev) => [event.detail, ...prev.slice(0, 9)]);
-    };
-
-    const handleCameraStatus = (event: CustomEvent<Record<string, { status: string }>>) => {
-      setCameraStatuses(event.detail);
-    };
-
-    const handleRecentDetections = (event: CustomEvent<Detection[]>) => {
-      setRecentDetections(event.detail);
-    };
-
-    window.addEventListener("newDetection", handleNewDetection as EventListener);
-    window.addEventListener("cameraStatus", handleCameraStatus as EventListener);
-    window.addEventListener("recentDetections", handleRecentDetections as EventListener);
-
-    return () => {
-      window.removeEventListener("newDetection", handleNewDetection as EventListener);
-      window.removeEventListener("cameraStatus", handleCameraStatus as EventListener);
-      window.removeEventListener("recentDetections", handleRecentDetections as EventListener);
-    };
-  }, []);
 
   // Calculate time period data from financial trends
   const calculatePeriodData = (startDate: Date, endDate: Date) => {
@@ -343,112 +267,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Restaurant Performance KPIs */}
-      {restaurantPerformanceKPIs?.has_restaurant_data && restaurantPerformanceKPIs?.has_waste_data && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Utensils className="h-5 w-5" />
-                  Restaurant Performance
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Waste efficiency metrics ({restaurantPerformanceKPIs.data_coverage_percentage.toFixed(0)}% data coverage)
-                </p>
-              </div>
-              {restaurantPerformanceKPIs.data_coverage_percentage < 80 && (
-                <Badge variant="secondary">Limited data</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Waste per Cover (Weight) */}
-              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-100 dark:border-blue-900">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Waste per Cover</span>
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                    <Scale className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                  {restaurantPerformanceKPIs.waste_per_cover_kg > 0
-                    ? `${restaurantPerformanceKPIs.waste_per_cover_kg.toFixed(3)}kg`
-                    : "0.000kg"}
-                </div>
-                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  {restaurantPerformanceKPIs.total_covers.toLocaleString()} total covers
-                </div>
-              </div>
-
-              {/* Waste per Cover (Cost) */}
-              <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-4 border border-red-100 dark:border-red-900">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-red-800 dark:text-red-200">Waste Cost per Cover</span>
-                  <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-4 h-4 text-red-600 dark:text-red-400" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-red-900 dark:text-red-100">
-                  {formatCurrency(restaurantPerformanceKPIs.waste_per_cover_cost, defaultCurrency)}
-                </div>
-                <div className="text-xs text-red-600 dark:text-red-400 mt-1">Per diner waste cost</div>
-              </div>
-
-              {/* Waste vs F&B Revenue */}
-              <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4 border border-purple-100 dark:border-purple-900">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Waste vs F&B Revenue</span>
-                  <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                  {restaurantPerformanceKPIs.waste_value_per_fb_revenue_percentage.toFixed(2)}%
-                </div>
-                <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">Of total F&B revenue</div>
-              </div>
-
-              {/* Revenue per Cover */}
-              <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-4 border border-green-100 dark:border-green-900">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-green-800 dark:text-green-200">Avg Revenue per Cover</span>
-                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
-                  {formatCurrency(restaurantPerformanceKPIs.avg_fb_revenue_per_cover, defaultCurrency)}
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                  {formatCurrency(restaurantPerformanceKPIs.total_fb_revenue, defaultCurrency)} total
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Insights Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t">
-              <div className="text-center">
-                <div className="text-lg font-semibold">
-                  {restaurantPerformanceKPIs.avg_covers_per_day.toFixed(0)}
-                </div>
-                <div className="text-xs text-muted-foreground">Avg covers/day</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold">
-                  {restaurantPerformanceKPIs.avg_waste_per_day_kg.toFixed(2)}kg
-                </div>
-                <div className="text-xs text-muted-foreground">Avg waste/day</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold">
-                  {formatCurrency(restaurantPerformanceKPIs.avg_waste_cost_per_day, defaultCurrency)}
-                </div>
-                <div className="text-xs text-muted-foreground">Avg waste cost/day</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {restaurantPerformanceKPIs && (
+        <RestaurantPerformanceCard
+          kpis={restaurantPerformanceKPIs}
+          currency={defaultCurrency}
+        />
       )}
 
       {/* Main Content Grid */}
@@ -760,95 +583,15 @@ export default function DashboardPage() {
 
       {/* System Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* System Status */}
-        <Card className="border-teal-200/40 dark:border-teal-800/30">
-          <CardHeader className="bg-gradient-to-r from-teal-50/60 to-emerald-50/40 dark:from-teal-950/20 dark:to-emerald-950/10 rounded-t-lg">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <div className="w-7 h-7 bg-teal-100 dark:bg-teal-900/40 rounded-lg flex items-center justify-center">
-                  <Activity className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
-                </div>
-                System Status
-              </CardTitle>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Active Cameras</span>
-                <span className="font-semibold text-green-600">
-                  {Object.values(cameraStatuses).filter((s) => s.status === "active").length}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Cameras</span>
-                <span className="font-semibold">{cameras.length}</span>
-              </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Today's Detections</span>
-                  <span className="font-semibold text-blue-600">{stats?.today_count ?? 0}</span>
-                </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">System Uptime</span>
-                <span className="font-semibold text-green-600">99.2%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Camera Status */}
-        <Card className="border-sky-200/40 dark:border-sky-800/30">
-          <CardHeader className="bg-gradient-to-r from-sky-50/60 to-cyan-50/40 dark:from-sky-950/20 dark:to-cyan-950/10 rounded-t-lg">
-            <CardTitle className="text-base flex items-center gap-2">
-              <div className="w-7 h-7 bg-sky-100 dark:bg-sky-900/40 rounded-lg flex items-center justify-center">
-                <CameraIcon className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
-              </div>
-              Camera Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-40">
-              <div className="space-y-2 pr-4">
-                {cameras.slice(0, 5).map((camera: Camera) => {
-                  const status = cameraStatuses[camera.id] || { status: "inactive" };
-                  return (
-                    <div
-                      key={camera.id}
-                      className="flex items-center justify-between p-2 bg-sky-50/40 dark:bg-sky-950/10 rounded-lg border border-sky-100/40 dark:border-sky-900/20"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
-                          <CameraIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-xs">{camera.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {camera.location || "No location"}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge
-                        variant={status.status === "active" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {status.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                  );
-                })}
-                {cameras.length > 5 && (
-                  <div className="text-center text-xs text-muted-foreground mt-1">
-                    +{cameras.length - 5} more cameras
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+        <SystemStatusCard
+          activeCameraCount={Object.values(cameraStatuses).filter((s) => s.status === "active").length}
+          totalCameraCount={cameras.length}
+          todayDetectionCount={stats?.today_count ?? 0}
+        />
+        <CameraStatusCard
+          cameras={cameras}
+          cameraStatuses={cameraStatuses}
+        />
       </div>
 
       {/* Detection Details Modal */}
