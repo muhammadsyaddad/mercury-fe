@@ -62,3 +62,7 @@ coverage
 
 #this is my notes anyway
 .hu
+
+
+#the agent skill always change, better ignore this file
+SKILL.md
